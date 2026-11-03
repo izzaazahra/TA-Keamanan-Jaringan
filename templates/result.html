@@ -22,7 +22,7 @@
                 <div class="card p-4">
                     <div class="d-flex align-items-center mb-4">
                         <a href="/" class="btn btn-outline-secondary btn-sm me-3"><i class="fas fa-arrow-left"></i> Kembali</a>
-                        <h3 class="mb-0 fw-bold">Hasil: {{ action }}</h3>
+                        <h3 class="mb-0 fw-bold">Hasil {{ action }}</h3>
                     </div>
                     
                     <div class="alert alert-success d-flex align-items-center">
@@ -30,12 +30,12 @@
                         <div>{{ message }}</div>
                     </div>
 
-                    {% if action == 'Encode' %}
+                    {% if action in ['Encode', 'Enskripsi', 'Enkripsi'] %}
                         <!-- Metrik Kualitas -->
                         <div class="row mb-4">
                             <div class="col-md-4 mb-2">
                                 <div class="metric-box">
-                                    <div class="text-muted small">Ukuran Data (Encrypted)</div>
+                                    <div class="text-muted small">Ukuran Data (Terenkripsi)</div>
                                     <div class="metric-value">{{ payload_size }} Bytes</div>
                                 </div>
                             </div>
@@ -76,8 +76,8 @@
                             *Catatan: Nilai MSE sebesar {{ mse }}. Semakin tinggi PSNR dan semakin mendekati 1 nilai SSIM, semakin baik kualitas gambar.
                         </div>
 
-                    {% elif action == 'Decode' %}
-                        <!-- Hasil Dekripsi -->
+                    {% elif action in ['Decode', 'Deskripsi', 'Dekripsi'] %}
+                        <!-- Hasil Deskripsi -->
                         <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-unlock-alt me-2"></i>Pesan Rahasia Berhasil Ditemukan:</h5>
                         <div class="bg-light p-4 rounded border">
                             <p class="mb-0 fs-5" style="white-space: pre-wrap;">{{ extracted_text }}</p>

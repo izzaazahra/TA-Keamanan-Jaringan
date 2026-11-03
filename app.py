@@ -29,7 +29,7 @@ def process():
     file.save(input_path)
 
     try:
-        if action == 'encode':
+        if action in ['encode', 'enskripsi', 'enkripsi']:
             secret_text = request.form['secret_text']
             stego_filename = 'stego_' + filename.rsplit('.', 1)[0] + '.png'
             output_path = os.path.join(app.config['UPLOAD_FOLDER'], stego_filename)
@@ -38,21 +38,21 @@ def process():
             mse, psnr_val, ssim_val = calculate_metrics(orig_arr, stego_arr)
             
             return render_template('result.html', 
-                                   action='Encode', 
+                                   action='Enskripsi', 
                                    orig_img=url_for('static', filename='uploads/' + filename),
                                    stego_img=url_for('static', filename='uploads/' + stego_filename),
                                    payload_size=data_len,
                                    mse=round(mse, 4),
                                    psnr=round(psnr_val, 2),
                                    ssim=round(ssim_val, 4),
-                                   message="Data berhasil disisipkan!")
+                                   message="Data berhasil disisipkan dan dienskripsi!")
                                    
-        elif action == 'decode':
+        elif action in ['decode', 'deskripsi', 'dekripsi']:
             extracted_text = decode_image(input_path, password)
             return render_template('result.html', 
-                                   action='Decode', 
+                                   action='Deskripsi', 
                                    extracted_text=extracted_text,
-                                   message="Data berhasil diekstrak dan didekripsi!")
+                                   message="Data berhasil diekstrak dan dideskripsi!")
                                    
     except Exception as e:
         return f"Terjadi kesalahan: {str(e)}"
