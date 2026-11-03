@@ -20,7 +20,7 @@
         }
         html {
             scroll-behavior: smooth;
-            scroll-padding-top: 85px;
+            scroll-padding-top: 68px;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -28,8 +28,35 @@
             color: #334155;
             padding-top: 0;
         }
+        
+        /* Ukuran Standar Tinggi Tiap Section untuk PC (1 Layar Penuh dengan Penyesuaian Konten) */
         section {
-            scroll-margin-top: 85px;
+            scroll-margin-top: 68px;
+            position: relative;
+        }
+        
+        @media (min-width: 992px) {
+            section {
+                min-height: calc(100vh - 68px); /* Standar PC: Tepat memenuhi 1 layar penuh di bawah navbar */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding-top: 50px !important;
+                padding-bottom: 50px !important;
+                box-sizing: border-box;
+            }
+            section > .container {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            section {
+                min-height: auto;
+                padding-top: 60px;
+                padding-bottom: 60px;
+                scroll-margin-top: 70px;
+            }
         }
         
         /* Navbar Customization (Putih Bersih dengan Menu Full Persegi & Animasi Slide) */
@@ -1735,7 +1762,7 @@
 
             function updateNavbarActive() {
                 const navbar = document.querySelector('.navbar');
-                const navbarHeight = navbar ? navbar.offsetHeight : 70;
+                const navbarHeight = navbar ? navbar.offsetHeight : 68;
                 const scrollY = window.pageYOffset || document.documentElement.scrollTop;
                 const windowHeight = window.innerHeight;
                 const docHeight = document.documentElement.scrollHeight;
@@ -1750,7 +1777,7 @@
                 for (let i = 0; i < navItems.length; i++) {
                     const sec = document.getElementById(navItems[i].id);
                     if (sec) {
-                        const secTop = sec.offsetTop - navbarHeight - 40;
+                        const secTop = sec.offsetTop - navbarHeight - 20;
                         const secHeight = sec.offsetHeight;
                         if (scrollY >= secTop && scrollY < secTop + secHeight) {
                             currentId = navItems[i].id;
@@ -1778,8 +1805,8 @@
                     if (targetElement) {
                         e.preventDefault();
                         const navbar = document.querySelector('.navbar');
-                        const navbarHeight = navbar ? navbar.offsetHeight : 70;
-                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 15;
+                        const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
 
                         window.scrollTo({
                             top: Math.max(0, targetPosition),
@@ -1825,8 +1852,8 @@
                     if (target) {
                         setTimeout(() => {
                             const navbar = document.querySelector('.navbar');
-                            const navbarHeight = navbar ? navbar.offsetHeight : 70;
-                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 15;
+                            const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
                             window.scrollTo({
                                 top: Math.max(0, targetPosition),
                                 behavior: 'smooth'
@@ -1984,8 +2011,8 @@
             const timSection = document.getElementById('tim');
             if (timSection) {
                 const navbar = document.querySelector('.navbar');
-                const navbarHeight = navbar ? navbar.offsetHeight : 70;
-                const targetPosition = timSection.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 15;
+                const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                const targetPosition = timSection.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
                 window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
             }
         }
