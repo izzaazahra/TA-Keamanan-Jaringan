@@ -204,7 +204,7 @@
                         <div class="d-flex align-items-center">
                             <div class="stat-icon bg-soft-warning me-3"><i class="fas fa-check-shield"></i></div>
                             <div>
-                                <h6 class="text-muted mb-1">Integritas Data (Hash)</h6>
+                                <h6 class="text-muted mb-1">Integritas (BER/Hash)</h6>
                                 <h3 class="mb-0 fw-bold text-success">100% Match</h3>
                             </div>
                         </div>
@@ -240,7 +240,7 @@
                             <tr>
                                 {% for col in columns %}
                                     <td class="text-center">
-                                        {% if col == 'Integritas (Hash)' %}
+                                        {% if col == 'BER/Hash' or col == 'Integritas (Hash)' %}
                                             <span class="badge-match"><i class="fas fa-check me-1"></i>{{ row[col] }}</span>
                                         {% else %}
                                             {{ row[col] }}
