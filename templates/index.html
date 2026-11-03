@@ -18,28 +18,189 @@
             --dark-bg: #0f172a; /* Deep Navy */
             --light-bg: #f8fafc;
         }
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 85px;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--light-bg);
             color: #334155;
-            scroll-behavior: smooth;
-            padding-top: 0; /* Dihapus agar Carousel menyatu dengan Navbar */
+            padding-top: 0;
+        }
+        section {
+            scroll-margin-top: 85px;
         }
         
-        /* Navbar Customization (Gelap & Transparan agar menyatu dengan Carousel) */
+        /* Navbar Customization (Putih Bersih dengan Menu Full Persegi & Animasi Slide) */
         .navbar {
-            background-color: rgba(247, 250, 255, 0.8) !important; /* Warna gelap transparan */
+            background-color: #ffffff !important;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+            border-bottom: 1px solid #f1f5f9;
             transition: all 0.3s ease;
-            padding: 15px 0;
+            padding: 0;
+            z-index: 1030;
         }
-        .navbar-brand { font-weight: 700; color: white !important; font-size: 1.5rem; }
-        .navbar-brand i { color: var(--primary-color); }
-        .nav-link { font-weight: 500; color: #e2e8f0 !important; transition: 0.3s; margin: 0 5px; }
-        .nav-link:hover, .nav-link.active { color: var(--secondary-color) !important; }
-        .navbar-toggler { border-color: rgba(255,255,255,0.2); }
-        .navbar-toggler-icon { filter: invert(1); }
+        .navbar-brand { 
+            font-weight: 700; 
+            color: var(--primary-color) !important; 
+            font-size: 1.45rem; 
+            display: inline-flex;
+            align-items: center;
+            letter-spacing: -0.3px;
+        }
+        .navbar-brand i { 
+            color: var(--primary-color); 
+        }
+        .navbar-nav {
+            margin: 0;
+            padding: 0;
+            gap: 0;
+        }
+        .nav-link { 
+            font-weight: 600; 
+            font-size: 0.93rem;
+            color: #475569 !important; 
+            border-radius: 0 !important;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent !important;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: none !important;
+            margin: 0;
+        }
+        .nav-link i {
+            color: #64748b;
+            transition: color 0.3s ease;
+            margin-right: 6px;
+        }
+        
+        /* Pseudo-element Background Persegi Full Navbar dengan Animasi Slide (Bawah ke Atas & Atas ke Bawah) */
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            z-index: -1;
+            transform: translateY(100%); /* Awalnya di bawah (tersembunyi) */
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hover dan Active: Slide naik dari bawah ke atas */
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: translateY(0); /* Muncul ke atas */
+        }
+
+        /* Saat tidak aktif/hover dilepas: otomatis slide turun dari atas ke bawah kembali ke translateY(100%) */
+        .nav-link:hover,
+        .nav-link.active {
+            color: #ffffff !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            color: #ffffff !important;
+        }
+
+        /* Hilangkan efek :focus bawaan browser agar background tidak tertinggal setelah klik */
+        .nav-link:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .navbar-toggler { 
+            border-color: #cbd5e1; 
+            padding: 6px 10px;
+        }
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2);
+        }
+        .navbar-toggler-icon { 
+            filter: none; 
+        }
+
+        /* Desktop: Menu memenuhi tinggi navbar secara full persegi */
+        @media (min-width: 992px) {
+            .navbar {
+                height: 68px;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            .navbar > .container {
+                height: 100%;
+                display: flex;
+                align-items: stretch;
+            }
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                padding: 0;
+                margin-right: 2rem;
+            }
+            .navbar-collapse {
+                height: 100%;
+                display: flex !important;
+                align-items: stretch;
+            }
+            .navbar-nav {
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                margin: 0;
+                gap: 0;
+            }
+            .navbar-nav .nav-item {
+                height: 100%;
+                display: flex;
+                align-items: stretch;
+                margin: 0;
+            }
+            .navbar-nav .nav-link {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 22px !important;
+                border-radius: 0 !important;
+            }
+        }
+
+        /* Mobile: Menu dropdown responsif */
+        @media (max-width: 991.98px) {
+            .navbar {
+                padding: 10px 0;
+            }
+            .navbar-collapse {
+                background: #ffffff;
+                padding: 10px 0;
+                border-radius: 0;
+                margin-top: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+                border-top: 1px solid #f1f5f9;
+            }
+            .navbar-nav {
+                gap: 0;
+            }
+            .navbar-nav .nav-link {
+                width: 100%;
+                padding: 14px 20px !important;
+                border-radius: 0 !important;
+            }
+        }
         
         /* Hero Carousel (Full Screen) */
         .carousel-item {
@@ -287,16 +448,7 @@
             background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
         }
 
-        /* Navbar */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
-        .nav-link { font-weight: 600; color: #475569 !important; }
-        .nav-link:hover { color: var(--primary-color) !important; }
-        
+
         /* Hero Section */
         .hero {
             background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
@@ -836,7 +988,7 @@
                     <li class="nav-item"><a class="nav-link" href="#tool"><i class="fas fa-tools me-1"></i> Uji Sistem</a></li>
                     <li class="nav-item"><a class="nav-link" href="#alur"><i class="fas fa-project-diagram me-1"></i> Alur Sistem</a></li>
                     <li class="nav-item"><a class="nav-link" href="#glosarium"><i class="fas fa-book me-1"></i> Glosarium</a></li>
-                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/evaluation"><i class="fas fa-chart-line me-1"></i> Laporan Evaluasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#evaluasi"><i class="fas fa-chart-line me-1"></i> Laporan Evaluasi</a></li>
                     <li class="nav-item"><a class="nav-link" href="#tim"><i class="fas fa-users me-1"></i> Tim</a></li>
                 </ul>
             </div>
@@ -1228,6 +1380,13 @@
                 </div>
 
             </div>
+
+            <!-- Tombol Navigasi ke Halaman Evaluasi Lengkap -->
+            <div class="text-center mt-5">
+                <a href="/evaluation" class="btn btn-custom btn-lg">
+                    <i class="fas fa-table me-2"></i>Lihat Tabel Evaluasi Lengkap (10 Sampel) <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
         </div>
     </section>
 
@@ -1552,14 +1711,130 @@
                 validateForm();
             });
 
-            // Menutup navbar otomatis saat link di-klik di tampilan mobile
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    const navbarCollapse = document.getElementById('navbarNav');
-                    if (navbarCollapse.classList.contains('show')) {
-                        new bootstrap.Collapse(navbarCollapse).hide();
+            // 4. Navigasi Halus (Smooth Scroll) dengan Offset Navbar & Tutup Mobile Menu
+            const navItems = [
+                { id: 'tool', link: document.querySelector('.navbar-nav a[href="#tool"]') },
+                { id: 'alur', link: document.querySelector('.navbar-nav a[href="#alur"]') },
+                { id: 'glosarium', link: document.querySelector('.navbar-nav a[href="#glosarium"]') },
+                { id: 'evaluasi', link: document.querySelector('.navbar-nav a[href="#evaluasi"]') },
+                { id: 'tim', link: document.querySelector('.navbar-nav a[href="#tim"]') }
+            ];
+
+            function setActiveNavLink(id) {
+                navItems.forEach(item => {
+                    if (item.link) {
+                        if (item.id === id) {
+                            item.link.classList.add('active');
+                        } else {
+                            item.link.classList.remove('active');
+                            item.link.blur();
+                        }
                     }
                 });
+            }
+
+            function updateNavbarActive() {
+                const navbar = document.querySelector('.navbar');
+                const navbarHeight = navbar ? navbar.offsetHeight : 70;
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+                const windowHeight = window.innerHeight;
+                const docHeight = document.documentElement.scrollHeight;
+
+                // Jika sudah scroll sampai dasar halaman, tandai menu Tim sebagai aktif
+                if (scrollY + windowHeight >= docHeight - 60) {
+                    setActiveNavLink('tim');
+                    return;
+                }
+
+                let currentId = null;
+                for (let i = 0; i < navItems.length; i++) {
+                    const sec = document.getElementById(navItems[i].id);
+                    if (sec) {
+                        const secTop = sec.offsetTop - navbarHeight - 40;
+                        const secHeight = sec.offsetHeight;
+                        if (scrollY >= secTop && scrollY < secTop + secHeight) {
+                            currentId = navItems[i].id;
+                            break;
+                        }
+                    }
+                }
+
+                setActiveNavLink(currentId);
+            }
+
+            // Pasang event listener untuk semua anchor link dengan target #
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    this.blur(); // Langsung hilangkan status focus browser setelah diklik
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#' || targetId === '') {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setActiveNavLink(null);
+                        return;
+                    }
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        e.preventDefault();
+                        const navbar = document.querySelector('.navbar');
+                        const navbarHeight = navbar ? navbar.offsetHeight : 70;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 15;
+
+                        window.scrollTo({
+                            top: Math.max(0, targetPosition),
+                            behavior: 'smooth'
+                        });
+
+                        if (history.pushState) {
+                            history.pushState(null, null, targetId);
+                        }
+
+                        // Jika link yang diklik adalah menu navbar, langsung highlight aktif
+                        const cleanId = targetId.replace('#', '');
+                        setActiveNavLink(cleanId);
+
+                        // Tutup navbar otomatis saat link di-klik di tampilan mobile
+                        const navbarCollapse = document.getElementById('navbarNav');
+                        if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+                            new bootstrap.Collapse(navbarCollapse).hide();
+                        }
+                    }
+                });
+            });
+
+            // Pantau posisi scroll untuk Scrollspy secara performan
+            let isScrollTicking = false;
+            window.addEventListener('scroll', function() {
+                if (!isScrollTicking) {
+                    window.requestAnimationFrame(function() {
+                        updateNavbarActive();
+                        isScrollTicking = false;
+                    });
+                    isScrollTicking = true;
+                }
+            }, { passive: true });
+
+            // Cek posisi aktif awal saat halaman dibuka
+            updateNavbarActive();
+
+            // Atur posisi awal jika URL mengandung hash (misal #tool) agar tidak tertutup navbar
+            window.addEventListener('load', function() {
+                if (window.location.hash) {
+                    const target = document.querySelector(window.location.hash);
+                    if (target) {
+                        setTimeout(() => {
+                            const navbar = document.querySelector('.navbar');
+                            const navbarHeight = navbar ? navbar.offsetHeight : 70;
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 15;
+                            window.scrollTo({
+                                top: Math.max(0, targetPosition),
+                                behavior: 'smooth'
+                            });
+                            updateNavbarActive();
+                        }, 120);
+                    }
+                }
             });
             
             // Fitur Show/Hide Password
@@ -1705,8 +1980,14 @@
             const iconElement = document.getElementById('detail-icon');
             iconElement.className = `fas ${data.icon}`;
             
-            // 5. Scroll perlahan ke bagian tim (opsional, agar tidak terkejut)
-            document.getElementById('tim').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // 5. Scroll perlahan ke bagian tim dengan memperhitungkan tinggi navbar
+            const timSection = document.getElementById('tim');
+            if (timSection) {
+                const navbar = document.querySelector('.navbar');
+                const navbarHeight = navbar ? navbar.offsetHeight : 70;
+                const targetPosition = timSection.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 15;
+                window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
+            }
         }
 
         function closeProfile() {

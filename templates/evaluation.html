@@ -14,11 +14,119 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     
     <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #06b6d4;
+        }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
-        /* Navbar */
-        .navbar { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
-        .nav-link { font-weight: 600; color: #475569 !important; }
+        /* Navbar Customization (Putih Bersih dengan Menu Full Persegi & Animasi Slide) */
+        .navbar { 
+            background-color: #ffffff !important; 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06); 
+            border-bottom: 1px solid #f1f5f9;
+            padding: 0;
+            z-index: 1030;
+        }
+        .navbar-brand { 
+            font-weight: 700; 
+            color: var(--primary-color) !important; 
+            font-size: 1.45rem; 
+            display: inline-flex;
+            align-items: center;
+        }
+        .nav-link { 
+            font-weight: 600; 
+            font-size: 0.93rem;
+            color: #475569 !important; 
+            border-radius: 0 !important;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent !important;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: none !important;
+            margin: 0;
+        }
+        .nav-link i {
+            color: #64748b;
+            transition: color 0.3s ease;
+            margin-right: 6px;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            z-index: -1;
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: translateY(0);
+        }
+
+        .nav-link:hover,
+        .nav-link.active { 
+            color: #ffffff !important; 
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+        .nav-link:hover i,
+        .nav-link.active i {
+            color: #ffffff !important;
+        }
+        .nav-link:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        @media (min-width: 992px) {
+            .navbar {
+                height: 68px;
+                padding: 0 !important;
+            }
+            .navbar > .container {
+                height: 100%;
+                display: flex;
+                align-items: stretch;
+            }
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                padding: 0;
+            }
+            .navbar-collapse {
+                height: 100%;
+                display: flex !important;
+                align-items: stretch;
+            }
+            .navbar-nav {
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+            }
+            .navbar-nav .nav-item {
+                height: 100%;
+                display: flex;
+                align-items: stretch;
+            }
+            .navbar-nav .nav-link {
+                height: 100%;
+                padding: 0 22px !important;
+            }
+        }
         
         /* UI Elements */
         .card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
@@ -39,7 +147,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="fas fa-shield-alt me-2"></i>SecureVault</a>
+            <a class="navbar-brand" href="/"><i class="fas fa-shield-alt me-2"></i>Secure Vault</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
