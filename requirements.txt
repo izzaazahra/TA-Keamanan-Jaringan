@@ -1,0 +1,7 @@
+Flask
+pycryptodome
+Pillow
+numpy
+scikit-image
+matplotlib
+pandas

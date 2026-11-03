@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault | AES + LSB Steganography</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb; /* Vibrant Blue */
+            --secondary-color: #06b6d4; /* Cyan */
+            --dark-bg: #0f172a; /* Deep Navy */
+            --light-bg: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: #334155;
+            scroll-behavior: smooth;
+            padding-top: 0; /* Dihapus agar Carousel menyatu dengan Navbar */
+        }
+        
+        /* Navbar Customization (Gelap & Transparan agar menyatu dengan Carousel) */
+        .navbar {
+            background-color: rgba(247, 250, 255, 0.8) !important; /* Warna gelap transparan */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 700; color: white !important; font-size: 1.5rem; }
+        .navbar-brand i { color: var(--primary-color); }
+        .nav-link { font-weight: 500; color: #e2e8f0 !important; transition: 0.3s; margin: 0 5px; }
+        .nav-link:hover, .nav-link.active { color: var(--secondary-color) !important; }
+        .navbar-toggler { border-color: rgba(255,255,255,0.2); }
+        .navbar-toggler-icon { filter: invert(1); }
+        
+        /* Hero Carousel (Full Screen) */
+        .carousel-item {
+            height: 100vh; /* Setinggi layar */
+            min-height: 600px;
+            background-color: var(--dark-bg);
+            position: relative;
+        }
+        .carousel-item img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            opacity: 0.5; /* Redupkan gambar agar teks terbaca */
+        }
+        
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px; /* <--- Ubah dari 40px menjadi 30px agar kotak lebih kecil */
+            color: white;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        @media (min-width: 768px) {
+            .glass-card {
+                margin-left: -90px; /* Ubah angka -40px menjadi lebih besar (misal -60px) jika ingin lebih kiri lagi */
+                margin-top: 90px; /* Tambahkan margin atas agar lebih seimbang */
+            }
+        }
+
+        /* Ukuran Teks */
+        .glass-card h1 { 
+            font-weight: 700; 
+            font-size: 2.3rem; /* <--- Kecilkan dari 2.8rem menjadi 2.3rem */
+            margin-bottom: 15px; 
+        }
+        
+        .glass-card p { 
+            font-size: 1rem; /* <--- Kecilkan sedikit ukuran teks paragraf */
+            color: #e2e8f0; 
+            margin-bottom: 25px; 
+            line-height: 1.6; 
+        }
+
+        /* Tombol Custom */
+        .btn-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+        .btn-custom:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6); color: white; }
+
+        /* Cards & Sections */
+        .section-title { text-align: center; font-weight: 700; margin-bottom: 40px; color: var(--dark-bg); }
+        .custom-card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; background: white; padding: 20px;}
+        .custom-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        /* Form Styles */
+        .form-control { border-radius: 10px; padding: 12px; border: 1px solid #cbd5e1; }
+        .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25); border-color: var(--primary-color); }
+        
+        /* Custom File Upload */
+        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .file-upload-btn { border: 2px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 10px; background: #f1f5f9; transition: 0.3s; }
+        .file-upload-wrapper:hover .file-upload-btn { border-color: var(--primary-color); background: #e0e7ff; }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
+        .nav-link { font-weight: 600; color: #475569 !important; }
+        .nav-link:hover { color: var(--primary-color) !important; }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+        .hero h1 { font-weight: 700; font-size: 3rem; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; color: #cbd5e1; max-width: 800px; margin: 0 auto 30px; }
+        .btn-custom {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 600;
+            transition: transform 0.3s;
+        }
+        .btn-custom:hover { transform: translateY(-3px); color: white; }
+
+        /* Cards & Sections */
+        .section-title { text-align: center; font-weight: 700; margin-bottom: 40px; color: var(--dark-bg); }
+        .card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        /* Form Styles */
+        .form-control { border-radius: 10px; padding: 12px; border: 1px solid #cbd5e1; }
+        .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25); border-color: var(--primary-color); }
+        
+        /* Custom File Upload */
+        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .file-upload-btn { border: 2px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 10px; background: #f1f5f9; transition: 0.3s; }
+        .file-upload-wrapper:hover .file-upload-btn { border-color: var(--primary-color); background: #e0e7ff; }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
+        }
+
+        /* CSS ALUR SISTEM */
+        .process-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Garis Penghubung Horizontal (Hanya muncul di layar besar) */
+        @media (min-width: 768px) {
+            .process-wrapper::before {
+                content: '';
+                position: absolute;
+                top: 60px; /* Sesuaikan dengan posisi tengah ikon */
+                left: 10%;
+                right: 10%;
+                height: 4px;
+                background: linear-gradient(90deg, rgba(37,99,235,0.1) 0%, rgba(37,99,235,0.8) 50%, rgba(37,99,235,0.1) 100%);
+                z-index: -1;
+                border-radius: 2px;
+            }
+        }
+
+        .step-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.02);
+            height: 100%;
+            position: relative;
+        }
+
+        /* Hover Effect untuk Kartu */
+        .step-card:hover {
+            transform: translateY(-15px); /* Kartu terangkat */
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15); /* Shadow membiru */
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        /* Styling Ikon */
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #e0e7ff; /* Warna biru muda */
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 0 5px #fff; /* Untuk memotong garis penghubung */
+        }
+
+        /* Animasi Ikon saat Hover */
+        .step-card:hover .icon-box {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5), 0 0 0 5px #fff;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: var(--dark-bg);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .step-desc {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        /* Animasi Fade In Up awal (sebelum di-scroll) */
+        .step-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .step-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* STYLE UNTUK GLOSARIUM */
+        .custom-list-group .list-group-item {
+            border: none;
+            margin-bottom: 12px;
+            border-radius: 12px !important;
+            background: white;
+            color: #475569;
+            font-weight: 600;
+            padding: 18px 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        
+        .custom-list-group .list-group-item:hover {
+            background: #f8fafc;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .custom-list-group .list-group-item.active {
+            background: white;
+            color: var(--primary-color) !important;
+            border-left-color: var(--primary-color);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+            transform: translateX(8px);
+        }
+
+        .custom-tab-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            height: 100%;
+            border: 1px solid rgba(0,0,0,0.02);
+            min-height: 350px; /* Agar tinggi kotak stabil */
+        }
+
+        /* Animasi perpindahan tab */
+        .tab-pane.fade {
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        /* CSS EVALUASI METRIK TABEL */
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            height: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        /* Garis Aksen di Kiri */
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            transition: all 0.3s;
+        }
+        .border-accent-blue::before { background: var(--primary-color); }
+        .border-accent-cyan::before { background: var(--secondary-color); }
+        .border-accent-purple::before { background: #8b5cf6; }
+        .border-accent-dark::before { background: #0f172a; }
+
+        /* Hover Effect */
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            border-color: transparent;
+        }
+        .metric-card:hover::before { width: 100%; opacity: 0.03; }
+
+        /* Ikon */
+        .metric-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: 0.3s;
+        }
+        .bg-blue { background: rgba(37, 99, 235, 0.1); color: var(--primary-color); }
+        .bg-cyan { background: rgba(6, 182, 212, 0.1); color: var(--secondary-color); }
+        .bg-purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        .bg-dark { background: rgba(15, 23, 42, 0.1); color: #fafbff; }
+        
+        .metric-card:hover .metric-icon { transform: scale(1.1) rotate(5deg); }
+
+        /* Badge Standar Kualitas */
+        .custom-badge {
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        .bg-success-soft { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .bg-info-soft { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .bg-primary-soft { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+
+        /* Animasi Scroll */
+        .eval-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .eval-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* STYLE CARD TIM PENGEMBANG */
+        .cyber-card {
+            background: var(--dark-bg); /* Warna gelap navy */
+            border-radius: 24px;
+            padding: 3px; /* Ketebalan border */
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s ease, box-shadow 0.4s ease;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+            height: 100%;
+            /* Untuk efek 3D Tilt */
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        /* Efek Glow Berputar di Belakang Kartu */
+        .cyber-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                transparent, 
+                rgba(6, 182, 212, 0.5), /* Cyan */
+                transparent 30%
+            );
+            animation: rotateGlow 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .cyber-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotateGlow {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Bagian Dalam Kartu (Menutupi Glow) */
+        .card-content {
+            background: #111827; /* Warna dasar gelap */
+            border-radius: 21px;
+            padding: 40px 30px;
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            /* Grid overlay untuk efek cyber */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Avatar */
+        .avatar-wrapper {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+            transition: all 0.3s ease;
+            transform: translateZ(30px); /* Efek 3D Pop-out */
+        }
+
+        .cyber-card:hover .avatar-wrapper {
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.8);
+            transform: translateZ(40px) scale(1.05);
+        }
+
+        /* Teks */
+        .team-name {
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            transform: translateZ(20px);
+        }
+
+        .team-role {
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            display: block;
+            transform: translateZ(15px);
+        }
+
+        .team-details {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transform: translateZ(10px);
+        }
+
+        .team-details span {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .team-details i {
+            color: #475569;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Animasi Scroll */
+        .team-item {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .team-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Kartu Grid Awal */
+        .team-card-light {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Efek Hover pada Kartu */
+        .team-card-light:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
+            border-color: #bfdbfe;
+        }
+
+        .avatar-circle {
+            width: 90px;
+            height: 90px;
+            background: #eff6ff; /* Biru sangat muda */
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto;
+            transition: all 0.3s;
+        }
+        .team-card-light:hover .avatar-circle {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Tampilan Detail (Panel Putih Bersih) */
+        .team-detail-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 50px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            animation: fadeIn 0.5s ease-out;
+            overflow: hidden;
+        }
+
+        /* Tombol Close (X) */
+        .btn-close-custom {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            color: #64748b;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .btn-close-custom:hover {
+            background: #ef4444;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Desain List Info (Kiri) */
+        .tracking-wide { letter-spacing: 2px; }
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .info-item i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            background: #eff6ff;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Desain Avatar Besar (Kanan) */
+        .big-avatar-wrapper {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7rem;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+        }
+        
+        /* Dekorasi Lingkaran di belakang Avatar */
+        .deco-circle-1 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #bfdbfe;
+            border-radius: 50%;
+            animation: spin 20s linear infinite;
+        }
+        .deco-circle-2 {
+            position: absolute;
+            width: 110%;
+            height: 110%;
+            border: 2px solid #eff6ff;
+            border-radius: 50%;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsif untuk Mobile */
+        @media (max-width: 768px) {
+            .team-detail-container { padding: 30px 20px; }
+            .big-avatar-wrapper { width: 180px; height: 180px; font-size: 5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+        <h5 class="mt-3 fw-bold text-primary">Memproses Data...</h5>
+    </div>
+
+        <!-- Navbar Overflow (Bootstrap) -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-shield-alt me-2"></i>SecureVault</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#tool"><i class="fas fa-exchange-alt me-1"></i> Encode / Decode</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#alur"><i class="fas fa-project-diagram me-1"></i> Alur Sistem</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#glosarium"><i class="fas fa-book me-1"></i> Glosarium</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/evaluation"><i class="fas fa-chart-line me-1"></i> Laporan Evaluasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tim"><i class="fas fa-users me-1"></i> Tim</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+        <!-- Hero Carousel Section -->
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="false">
+        <div class="carousel-inner">
+            
+            <!-- Gambar 1 -->
+            <div class="carousel-item active">
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1920&auto=format&fit=crop" alt="Cyber Security">
+                <div class="carousel-caption d-flex align-items-center h-100">
+                    <div class="container-fluid ps-md-3 pe-md-5">
+                        <div class="row">
+                            <div class="col-lg-7 col-md-9 text-start">
+                                <div class="glass-card">
+                                    <h1>Amankan Data Anda dengan <br><span style="color: var(--secondary-color);">Double Security</span></h1>
+                                    <p>SecureVault menggabungkan kekuatan enkripsi militer <strong>AES (Advanced Encryption Standard)</strong> dengan teknik penyembunyian data <strong>Steganografi LSB</strong>. Data dienkripsi, lalu disembunyikan di dalam gambar tanpa merusak visualnya.</p>
+                                    <a href="#tool" class="btn btn-custom btn-lg">Coba Sistem Sekarang <i class="fas fa-arrow-down ms-2"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gambar 2 -->
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1920&auto=format&fit=crop" alt="Hacker Data">
+                <div class="carousel-caption d-flex align-items-center h-100">
+                    <div class="container-fluid ps-md-3 pe-md-5">
+                        <div class="row">
+                            <div class="col-lg-7 col-md-9 text-start">
+                                <div class="glass-card">
+                                    <h1>Kerahasiaan Data <br><span style="color: var(--secondary-color);">Tingkat Tinggi</span></h1>
+                                    <p>Sistem ini menggunakan mode <strong>AES-256 CBC</strong> dengan kunci yang diturunkan dari password Anda. Bahkan jika gambar berhasil dicuri, data di dalamnya hanyalah kode acak yang tidak bisa dibaca tanpa kunci yang tepat.</p>
+                                    <a href="#glosarium" class="btn btn-custom btn-lg">Pelajari Kriptografi <i class="fas fa-book-open ms-2"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gambar 3 -->
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?q=80&w=1920&auto=format&fit=crop" alt="Steganography">
+                <div class="carousel-caption d-flex align-items-center h-100">
+                    <div class="container-fluid ps-md-3 pe-md-5">
+                        <div class="row">
+                            <div class="col-lg-7 col-md-9 text-start">
+                                <div class="glass-card">
+                                    <h1>Penyembunyian Data <br><span style="color: var(--secondary-color);">Tanpa Jejak Visual</span></h1>
+                                    <p>Menggunakan metode <strong>Randomized LSB (Least Significant Bit)</strong>. Data disisipkan pada bit warna paling akhir secara acak. Mata manusia tidak akan menyadari bahwa gambar tersebut menyimpan pesan rahasia.</p>
+                                    <a href="#alur" class="btn btn-custom btn-lg">Lihat Alur Sistem <i class="fas fa-project-diagram ms-2"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gambar 4 -->
+            <div class="carousel-item">
+                <img src="https://images.unsplash.com/photo-1510915228340-29c85a43dcfe?q=80&w=1920&auto=format&fit=crop" alt="Network Security">
+                <div class="carousel-caption d-flex align-items-center h-100">
+                    <div class="container-fluid ps-md-3 pe-md-5">
+                        <div class="row">
+                            <div class="col-lg-7 col-md-9 text-start">
+                                <div class="glass-card">
+                                    <h1>Uji Kualitas & <br><span style="color: var(--secondary-color);">Integritas Data</span></h1>
+                                    <p>Kami telah melakukan evaluasi ketat menggunakan metrik <strong>PSNR, MSE, dan SSIM</strong>, serta verifikasi Hash SHA-256. Hasilnya, data 100% utuh (BER = 0) dengan kualitas gambar yang sangat baik.</p>
+                                    <a href="/evaluation" class="btn btn-custom btn-lg">Lihat Laporan Evaluasi <i class="fas fa-chart-pie ms-2"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tool Section (Form) -->
+    <section class="py-5" id="tool">
+        <div class="container">
+            <h2 class="section-title">Kriptografi & Steganografi</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="custom-card p-4">
+                        <form id="mainForm" action="/process" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                            
+                            <!-- File Upload -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">1. Pilih Media Penampung (Citra PNG)</label>
+                                <div class="file-upload-wrapper">
+                                    <div class="file-upload-btn">
+                                        <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i>
+                                        <p class="mb-0" id="fileName">Klik atau Tarik Gambar ke Sini</p>
+                                        <small class="text-muted">Disarankan format PNG (maks. 5MB)</small>
+                                    </div>
+                                    <input type="file" name="image" id="imageInput" accept="image/png, image/jpeg" required onchange="updateFileName()">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">2. Kunci Rahasia (Password)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-key text-primary"></i></span>
+                                    <input type="password" class="form-control" name="password" id="passwordInput" placeholder="Masukkan password unik..." required>
+                                    
+                                    <!-- Tombol Toggle Password -->
+                                    <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword" style="border-color: #ced4da;">
+                                        <i class="fas fa-eye text-muted" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Password ini digunakan untuk mengenkripsi dan mengacak posisi LSB.</small>
+                            </div>
+
+                            <!-- Secret Text -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">3. Pesan Rahasia (Kosongkan jika hanya ingin Decode)</label>
+                                <textarea class="form-control" name="secret_text" rows="3" placeholder="Ketik pesan yang ingin disembunyikan di sini..."></textarea>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" name="action" value="decode" class="btn btn-outline-primary px-4 py-2" style="border-radius: 10px;">
+                                    <i class="fas fa-unlock me-2"></i>Decode (Ekstrak)
+                                </button>
+                                <button type="submit" name="action" value="encode" class="btn btn-primary px-4 py-2" style="border-radius: 10px; background: var(--primary-color);">
+                                    <i class="fas fa-lock me-2"></i>Encode (Sisipkan)
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alur Sistem (Interactive Stepper) -->
+    <section class="py-5 bg-white overflow-hidden" id="alur">
+        <div class="container py-4">
+            <h2 class="section-title mb-5">Bagaimana Sistem Ini Bekerja?</h2>
+            
+            <div class="row g-4 process-wrapper">
+                <!-- Step 1 -->
+                <div class="col-md-3 step-item">
+                    <div class="step-card">
+                        <div class="icon-box">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <h5 class="step-title">1. Input Data</h5>
+                        <p class="step-desc">Pengguna memasukkan pesan rahasia, gambar, dan password.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-md-3 step-item">
+                    <div class="step-card">
+                        <div class="icon-box">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h5 class="step-title">2. Enkripsi AES</h5>
+                        <p class="step-desc">Pesan diubah menjadi kode acak (ciphertext) menggunakan kunci AES-256.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-md-3 step-item">
+                    <div class="step-card">
+                        <div class="icon-box">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <h5 class="step-title">3. Penyisipan LSB</h5>
+                        <p class="step-desc">Ciphertext disisipkan ke bit terakhir piksel gambar secara acak.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="col-md-3 step-item">
+                    <div class="step-card">
+                        <div class="icon-box">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <h5 class="step-title">4. Stego-Image</h5>
+                        <p class="step-desc">Gambar siap disimpan. Secara visual tidak ada yang berubah.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- Glosarium (Interactive Tabs) -->
+    <section class="py-5" id="glosarium" style="background-color: #f8fafc;">
+        <div class="container py-4">
+            <h2 class="section-title mb-5">Glosarium & Prinsip Kerja</h2>
+            <div class="row g-4">
+                <!-- Menu Navigasi Kiri -->
+                <div class="col-lg-4">
+                    <div class="list-group custom-list-group" id="list-tab" role="tablist">
+                        <!-- Tab 1 -->
+                        <a class="list-group-item list-group-item-action active" id="list-keamanan-list" data-bs-toggle="list" href="#list-keamanan" role="tab">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-network-wired me-3 fs-5"></i>
+                                <span>Keamanan Jaringan</span>
+                            </div>
+                        </a>
+                        <!-- Tab 2 -->
+                        <a class="list-group-item list-group-item-action" id="list-kripto-list" data-bs-toggle="list" href="#list-kripto" role="tab">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-secret me-3 fs-5"></i>
+                                <span>Kriptografi vs Steganografi</span>
+                            </div>
+                        </a>
+                        <!-- Tab 3 -->
+                        <a class="list-group-item list-group-item-action" id="list-aes-list" data-bs-toggle="list" href="#list-aes" role="tab">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shield-alt me-3 fs-5"></i>
+                                <span>AES (Advanced Encryption)</span>
+                            </div>
+                        </a>
+                        <!-- Tab 4 -->
+                        <a class="list-group-item list-group-item-action" id="list-lsb-list" data-bs-toggle="list" href="#list-lsb" role="tab">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-images me-3 fs-5"></i>
+                                <span>LSB (Least Significant Bit)</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Konten Kanan -->
+                <div class="col-lg-8">
+                    <div class="tab-content custom-tab-content" id="nav-tabContent">
+                        
+                        <!-- Konten 1: Keamanan Jaringan -->
+                        <div class="tab-pane fade show active" id="list-keamanan" role="tabpanel">
+                            <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                    <i class="fas fa-network-wired"></i>
+                                </div>
+                                <h3 class="mb-0 fw-bold">Keamanan Jaringan</h3>
+                            </div>
+                            <p class="fs-6 text-muted" style="line-height: 1.8;">Keamanan jaringan adalah praktik mencegah dan memantau akses tidak sah, penyalahgunaan, modifikasi, atau penolakan terhadap jaringan komputer dan sumber daya yang dapat diakses jaringan. Tujuannya adalah menjaga <strong>Kerahasiaan (Confidentiality)</strong>, <strong>Integritas (Integrity)</strong>, dan <strong>Ketersediaan (Availability)</strong> data.</p>
+                        </div>
+                        
+                        <!-- Konten 2: Kriptografi vs Steganografi -->
+                        <div class="tab-pane fade" id="list-kripto" role="tabpanel">
+                            <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                    <i class="fas fa-user-secret"></i>
+                                </div>
+                                <h3 class="mb-0 fw-bold">Kriptografi vs Steganografi</h3>
+                            </div>
+                            <p class="fs-6 text-muted" style="line-height: 1.8;"><strong>Kriptografi</strong> mengamankan data dengan mengubahnya menjadi bentuk yang tidak bisa dibaca (acak). <br><br><strong>Steganografi</strong> mengamankan data dengan menyembunyikan keberadaannya di dalam media lain (misal gambar). <br><br>Kombinasi keduanya menciptakan sistem "Double Security": Penyerang tidak tahu ada pesan, dan kalaupun tahu, mereka tidak bisa membacanya.</p>
+                        </div>
+
+                        <!-- Konten 3: AES -->
+                        <div class="tab-pane fade" id="list-aes" role="tabpanel">
+                            <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <h3 class="mb-0 fw-bold">AES (Advanced Encryption Standard)</h3>
+                            </div>
+                            <p class="fs-6 text-muted" style="line-height: 1.8;">Algoritma kriptografi simetris yang diakui secara global sebagai standar enkripsi. Sistem ini menggunakan mode <em>CBC (Cipher Block Chaining)</em> dengan kunci 256-bit yang diturunkan dari password pengguna menggunakan fungsi hash SHA-256. Sangat kuat terhadap serangan brute-force.</p>
+                        </div>
+
+                        <!-- Konten 4: LSB -->
+                        <div class="tab-pane fade" id="list-lsb" role="tabpanel">
+                            <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                    <i class="fas fa-images"></i>
+                                </div>
+                                <h3 class="mb-0 fw-bold">LSB (Least Significant Bit)</h3>
+                            </div>
+                            <p class="fs-6 text-muted" style="line-height: 1.8;">Teknik steganografi dengan mengganti bit terakhir (paling kanan) dari nilai warna piksel (RGB). Karena perubahan pada bit terakhir hanya mengubah nilai warna sebesar 1 satuan, mata manusia tidak dapat melihat perbedaannya. Sistem ini juga menggunakan <em>Randomized LSB</em> (posisi disisipkan secara acak berdasarkan password) agar lebih aman dari deteksi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluasi (Metric Cards Dashboard) -->
+    <section class="py-5 bg-light" id="evaluasi">
+        <div class="container py-4">
+            <h2 class="section-title mb-5">Metrik Evaluasi Kualitas</h2>
+            
+            <div class="row g-4 eval-wrapper">
+                
+                <!-- Kartu 1: PSNR -->
+                <div class="col-md-6 eval-item">
+                    <div class="metric-card border-accent-blue">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="metric-icon bg-blue">
+                                <i class="fas fa-signal"></i>
+                            </div>
+                            <span class="badge custom-badge bg-success-soft"><i class="fas fa-check-circle me-1"></i> > 40 dB</span>
+                        </div>
+                        <h4 class="fw-bold mb-2">PSNR</h4>
+                        <h6 class="text-primary mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">PEAK SIGNAL-TO-NOISE RATIO</h6>
+                        <p class="text-muted mb-0">Mengukur rasio antara kekuatan sinyal maksimum dan kekuatan noise yang mempengaruhi kualitas citra. Semakin tinggi nilainya, semakin baik kualitas gambar.</p>
+                    </div>
+                </div>
+
+                <!-- Kartu 2: MSE -->
+                <div class="col-md-6 eval-item">
+                    <div class="metric-card border-accent-cyan">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="metric-icon bg-cyan">
+                                <i class="fas fa-crosshairs"></i>
+                            </div>
+                            <span class="badge custom-badge bg-info-soft"><i class="fas fa-bullseye me-1"></i> Mendekati 0</span>
+                        </div>
+                        <h4 class="fw-bold mb-2">MSE</h4>
+                        <h6 class="text-info mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">MEAN SQUARED ERROR</h6>
+                        <p class="text-muted mb-0">Mengukur rata-rata kesalahan kuadrat antara citra asli dan citra stego. Nilai 0 berarti tidak ada perbedaan sama sekali antara kedua gambar.</p>
+                    </div>
+                </div>
+
+                <!-- Kartu 3: SSIM -->
+                <div class="col-md-6 eval-item">
+                    <div class="metric-card border-accent-purple">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="metric-icon bg-purple">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <span class="badge custom-badge bg-primary-soft"><i class="fas fa-chart-line me-1"></i> Mendekati 1.0</span>
+                        </div>
+                        <h4 class="fw-bold mb-2">SSIM</h4>
+                        <h6 class="text-purple mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">STRUCTURAL SIMILARITY INDEX</h6>
+                        <p class="text-muted mb-0">Mengukur kemiripan struktur antara dua gambar berdasarkan persepsi visual manusia. Nilai 1.0 berarti gambar identik secara visual.</p>
+                    </div>
+                </div>
+
+                <!-- Kartu 4: Integritas Hash -->
+                <div class="col-md-6 eval-item">
+                    <div class="metric-card border-accent-dark">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="metric-icon bg-dark">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+                            <span class="badge custom-badge bg-success-soft"><i class="fas fa-shield-alt me-1"></i> Match (BER=0)</span>
+                        </div>
+                        <h4 class="fw-bold mb-2">Integritas Hash</h4>
+                        <h6 class="text-secondary mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">SHA-256 ALGORITHM</h6>
+                        <p class="text-muted mb-0">Memastikan data yang diekstrak 100% sama persis (Bit Error Rate = 0) dengan data yang dimasukkan sebelum dienkripsi.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+        <!-- Tim Pengembang (Interactive Light Profile) -->
+    <section class="py-5 bg-white" id="tim">
+        <div class="container py-4">
+            <h2 class="section-title mb-5">Tim Pengembang</h2>
+            
+            <!-- TAMPILAN GRID KARTU (Awal) -->
+            <div class="row g-4 justify-content-center" id="team-grid">
+                
+                <!-- Kartu 1 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="team-card-light" onclick="showProfile(1)">
+                        <div class="avatar-circle">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mt-3 mb-1">Nurul Izza Azahra</h4>
+                        <p class="text-primary fw-bold mb-2" style="font-size: 0.9rem;">Website Developer</p>
+                        <p class="text-muted small"><i class="fas fa-id-badge me-1"></i> 230533604066</p>
+                        <button class="btn btn-outline-primary btn-sm rounded-pill mt-3 px-4">Lihat Profil</button>
+                    </div>
+                </div>
+
+                <!-- Kartu 2 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="team-card-light" onclick="showProfile(2)">
+                        <div class="avatar-circle">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mt-3 mb-1">Nilam Maharani</h4>
+                        <p class="text-primary fw-bold mb-2" style="font-size: 0.9rem;">UI/UX Specialist</p>
+                        <p class="text-muted small"><i class="fas fa-id-badge me-1"></i> 230533605598</p>
+                        <button class="btn btn-outline-primary btn-sm rounded-pill mt-3 px-4">Lihat Profil</button>
+                    </div>
+                </div>
+
+                <!-- Kartu 3 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="team-card-light" onclick="showProfile(3)">
+                        <div class="avatar-circle">
+                            <i class="fas fa-user-astronaut"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mt-3 mb-1">Viria Rihadatul S.</h4>
+                        <p class="text-primary fw-bold mb-2" style="font-size: 0.9rem;">Security Analyst</p>
+                        <p class="text-muted small"><i class="fas fa-id-badge me-1"></i> 230533607483</p>
+                        <button class="btn btn-outline-primary btn-sm rounded-pill mt-3 px-4">Lihat Profil</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAMPILAN DETAIL PROFIL (Tersembunyi Awalnya) -->
+            <div class="team-detail-container d-none" id="team-detail">
+                <!-- Tombol Close (X) -->
+                <button class="btn-close-custom" onclick="closeProfile()">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <div class="row align-items-center h-100">
+                    <!-- Kiri: Informasi -->
+                    <div class="col-md-7 order-2 order-md-1">
+                        <h6 class="text-primary fw-bold mb-2 tracking-wide">PROFIL ANGGOTA</h6>
+                        <h2 class="display-5 fw-bold text-dark mb-3" id="detail-name">Nama</h2>
+                        <h5 class="text-secondary mb-4" id="detail-role">Role</h5>
+                        
+                        <div class="info-list">
+                            <div class="info-item">
+                                <i class="fas fa-id-badge"></i>
+                                <div>
+                                    <span class="text-muted small d-block">NIM</span>
+                                    <span class="fw-bold" id="detail-nim">-</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-university"></i>
+                                <div>
+                                    <span class="text-muted small d-block">Universitas</span>
+                                    <span class="fw-bold">Universitas Negeri Malang</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <div>
+                                    <span class="text-muted small d-block">Program Studi</span>
+                                    <span class="fw-bold">S1 Pendidikan Teknik Informatika</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Kanan: Gambar/Ilustrasi Besar -->
+                    <div class="col-md-5 order-1 order-md-2 text-center mb-4 mb-md-0">
+                        <div class="big-avatar-wrapper" id="detail-image-container">
+                            <i class="fas fa-user-shield" id="detail-icon"></i>
+                            <!-- Efek Dekorasi -->
+                            <div class="deco-circle-1"></div>
+                            <div class="deco-circle-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 SecureVault Project. Dibuat untuk Tugas Keamanan Jaringan.</p>
+        </div>
+    </footer>
+
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Fungsi untuk menampilkan nama file saat di-upload
+            function updateFileName() {
+                const input = document.getElementById('imageInput');
+                const fileNameDisplay = document.getElementById('fileName');
+                if (input.files && input.files.length > 0) {
+                    fileNameDisplay.innerHTML = `<strong class="text-success"><i class="fas fa-check-circle me-1"></i> ${input.files[0].name}</strong>`;
+                } else {
+                    fileNameDisplay.innerHTML = 'Klik atau Tarik Gambar ke Sini';
+                }
+            }
+
+            // Fungsi untuk menampilkan loading overlay saat submit
+            function showLoading() {
+                document.getElementById('loading-overlay').style.display = 'flex';
+            }
+
+            // Menutup navbar otomatis saat link di-klik di tampilan mobile
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    const navbarCollapse = document.getElementById('navbarNav');
+                    if (navbarCollapse.classList.contains('show')) {
+                        new bootstrap.Collapse(navbarCollapse).hide();
+                    }
+                });
+            });
+            
+            // Fitur Show/Hide Password
+            document.getElementById('togglePassword').addEventListener('click', function () {
+                const passwordInput = document.getElementById('passwordInput');
+                const eyeIcon = document.getElementById('eyeIcon');
+
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.classList.remove('fa-eye', 'text-muted');
+                    eyeIcon.classList.add('fa-eye-slash', 'text-primary');
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.classList.remove('fa-eye-slash', 'text-primary');
+                    eyeIcon.classList.add('fa-eye', 'text-muted');
+                }
+            });
+
+            // Animasi muncul saat di-scroll (Intersection Observer)
+            document.addEventListener("DOMContentLoaded", function() {
+                const stepItems = document.querySelectorAll('.step-item');
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            // Berikan delay bertahap agar munculnya bergantian
+                            setTimeout(() => {
+                                entry.target.classList.add('visible');
+                            }, index * 150); 
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.2 }); // Muncul saat 20% elemen terlihat
+
+                stepItems.forEach(item => {
+                    observer.observe(item);
+                });
+            });
+
+            // Animasi muncul untuk Kartu Evaluasi
+            document.addEventListener("DOMContentLoaded", function() {
+                const evalItems = document.querySelectorAll('.eval-item');
+                
+                const evalObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                entry.target.classList.add('visible');
+                            }, index * 150); // Jeda antar kartu
+                            evalObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.2 });
+
+                evalItems.forEach(item => {
+                    evalObserver.observe(item);
+                });
+            });
+
+            // 1. Animasi Muncul untuk Kartu Tim
+            document.addEventListener("DOMContentLoaded", function() {
+                const teamItems = document.querySelectorAll('.team-item');
+                
+                const teamObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                entry.target.classList.add('visible');
+                            }, index * 200); // Jeda antar kartu
+                            teamObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.2 });
+
+                teamItems.forEach(item => {
+                    teamObserver.observe(item);
+                });
+            });
+
+            // 2. Efek 3D Tilt (Kartu Miring Mengikuti Mouse)
+            const cyberCards = document.querySelectorAll('.cyber-card');
+            
+            cyberCards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left; // Posisi X mouse di dalam kartu
+                    const y = e.clientY - rect.top;  // Posisi Y mouse di dalam kartu
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    // Hitung derajat kemiringan (maksimal 15 derajat)
+                    const rotateX = ((y - centerY) / centerY) * -15;
+                    const rotateY = ((x - centerX) / centerX) * 15;
+                    
+                    // Terapkan transformasi
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+
+                // Kembalikan ke posisi semula saat mouse keluar
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                });
+            });
+
+        // FUNGSI INTERAKSI PROFIL TIM
+        // Data Tim (Bisa disesuaikan)
+        const teamData = {
+            1: {
+                name: "Nurul Izza Azahra",
+                role: "Web Developer & Cryptographer",
+                nim: "230533604066",
+                icon: "fa-user-shield"
+            },
+            2: {
+                name: "Nilam Maharani",
+                role: "UI/UX & Steganography Specialist",
+                nim: "230533605598",
+                icon: "fa-user-secret"
+            },
+            3: {
+                name: "Viria Rihadatul Salzabil",
+                role: "Network Security Analyst",
+                nim: "230533607483",
+                icon: "fa-user-astronaut"
+            }
+        };
+        function showProfile(id) {
+            // 1. Sembunyikan Grid, Tampilkan Detail
+            document.getElementById('team-grid').classList.add('d-none');
+            const detailContainer = document.getElementById('team-detail');
+            detailContainer.classList.remove('d-none');
+            
+            // 2. Ambil data berdasarkan ID yang diklik
+            const data = teamData[id];
+            
+            // 3. Update Teks
+            document.getElementById('detail-name').innerText = data.name;
+            document.getElementById('detail-role').innerText = data.role;
+            document.getElementById('detail-nim').innerText = data.nim;
+            
+            // 4. Update Ikon Avatar Besar
+            const iconElement = document.getElementById('detail-icon');
+            iconElement.className = `fas ${data.icon}`;
+            
+            // 5. Scroll perlahan ke bagian tim (opsional, agar tidak terkejut)
+            document.getElementById('tim').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeProfile() {
+            // Sembunyikan Detail, Tampilkan Grid kembali
+            document.getElementById('team-detail').classList.add('d-none');
+            document.getElementById('team-grid').classList.remove('d-none');
+        }
+        </script>
+</body>
+</html>

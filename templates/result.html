@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Proses | SecureVault</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; padding-top: 50px;}
+        .card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .metric-box { background: #e0e7ff; border-radius: 10px; padding: 15px; text-align: center; }
+        .metric-value { font-size: 1.5rem; font-weight: 700; color: #4f46e5; }
+        .img-container { border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <a href="/" class="btn btn-outline-secondary btn-sm me-3"><i class="fas fa-arrow-left"></i> Kembali</a>
+                        <h3 class="mb-0 fw-bold">Hasil: {{ action }}</h3>
+                    </div>
+                    
+                    <div class="alert alert-success d-flex align-items-center">
+                        <i class="fas fa-check-circle fs-4 me-3"></i>
+                        <div>{{ message }}</div>
+                    </div>
+
+                    {% if action == 'Encode' %}
+                        <!-- Metrik Kualitas -->
+                        <div class="row mb-4">
+                            <div class="col-md-4 mb-2">
+                                <div class="metric-box">
+                                    <div class="text-muted small">Ukuran Data (Encrypted)</div>
+                                    <div class="metric-value">{{ payload_size }} Bytes</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="metric-box">
+                                    <div class="text-muted small">PSNR (Peak Signal-to-Noise Ratio)</div>
+                                    <div class="metric-value">{{ psnr }} dB</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="metric-box">
+                                    <div class="text-muted small">SSIM (Structural Similarity)</div>
+                                    <div class="metric-value">{{ ssim }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Perbandingan Gambar -->
+                        <h5 class="fw-bold mb-3 mt-4">Perbandingan Visual</h5>
+                        <div class="row">
+                            <div class="col-md-6 text-center mb-3">
+                                <p class="fw-bold text-muted">Gambar Asli</p>
+                                <img src="{{ orig_img }}" class="img-fluid img-container" alt="Original Image">
+                            </div>
+                            <div class="col-md-6 text-center mb-3">
+                                <p class="fw-bold text-success">Gambar Stego (Tersisipkan)</p>
+                                <img src="{{ stego_img }}" class="img-fluid img-container" alt="Stego Image">
+                                <div class="mt-3">
+                                    <!-- Tombol Download -->
+                                    <a href="{{ stego_img }}" download="stego_image.png" class="btn btn-success w-100 py-2" style="border-radius: 10px;">
+                                        <i class="fas fa-download me-2"></i>Download Gambar Stego
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-muted small mt-3 text-center">
+                            *Catatan: Nilai MSE sebesar {{ mse }}. Semakin tinggi PSNR dan semakin mendekati 1 nilai SSIM, semakin baik kualitas gambar.
+                        </div>
+
+                    {% elif action == 'Decode' %}
+                        <!-- Hasil Dekripsi -->
+                        <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-unlock-alt me-2"></i>Pesan Rahasia Berhasil Ditemukan:</h5>
+                        <div class="bg-light p-4 rounded border">
+                            <p class="mb-0 fs-5" style="white-space: pre-wrap;">{{ extracted_text }}</p>
+                        </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

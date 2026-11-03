@@ -1,0 +1,440 @@
+<!-- Index Page Lama-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AES + LSB Steganography</title>
+    <style>body { font-family: Arial; margin: 40px; } .box { border: 1px solid #ccc; padding: 20px; max-width: 500px; }</style>
+</head>
+<body>
+    <h2>Sistem Enkripsi AES & Steganografi LSB</h2>
+    <div class="box">
+        <form action="/process" method="post" enctype="multipart/form-data">
+            <label>Pilih Citra (PNG/JPG):</label><br>
+            <input type="file" name="image" accept="image/*" required><br><br>
+            
+            <label>Password / Kunci:</label><br>
+            <input type="password" name="password" required><br><br>
+            
+            <label>Pesan Rahasia (Hanya untuk Encode):</label><br>
+            <textarea name="secret_text" rows="4" cols="50"></textarea><br><br>
+            
+            <button type="submit" name="action" value="encode">Encode (Sisipkan Data)</button>
+            <button type="submit" name="action" value="decode">Decode (Ekstrak Data)</button>
+        </form>
+    </div>
+</body>
+</html>
+
+<!-- Result Page -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hasil Proses</title>
+    <style>body { font-family: Arial; margin: 40px; } .metric { background: #f4f4f4; padding: 10px; margin-bottom: 5px; }</style>
+</head>
+<body>
+    <h2>Hasil: {{ action }}</h2>
+    <p><strong>{{ message }}</strong></p>
+
+    {% if action == 'Encode' %}
+        <div class="metric"><strong>Ukuran Payload (Encrypted):</strong> {{ payload_size }} bytes</div>
+        <div class="metric"><strong>MSE:</strong> {{ mse }}</div>
+        <div class="metric"><strong>PSNR:</strong> {{ psnr }} dB (Semakin tinggi semakin baik)</div>
+        <div class="metric"><strong>SSIM:</strong> {{ ssim }} (Mendekati 1 semakin baik)</div>
+        
+        <h3>Perbandingan Gambar</h3>
+        <div style="display: flex; gap: 20px;">
+            <div><p>Asli</p><img src="{{ orig_img }}" width="300"></div>
+            <div>
+                <p>Stego (Hasil)</p>
+                <img src="{{ stego_img }}" width="300"><br><br>
+                <a href="{{ stego_img }}" download="stego_image.png" style="padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 5px;">⬇️ Download Gambar Stego</a>
+            </div>
+        </div>
+    {% elif action == 'Decode' %}
+        <h3>Pesan yang Ditemukan:</h3>
+        <textarea rows="5" cols="50" readonly>{{ extracted_text }}</textarea>
+    {% endif %}
+    <br><br><a href="/">Kembali</a>
+</body>
+</html>
+
+<!-- INDEX.HTML PART 2 -->
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault | AES + LSB Steganography</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #0ea5e9;
+            --dark-bg: #0f172a;
+            --light-bg: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: #334155;
+            scroll-behavior: smooth;
+        }
+        /* Navbar */
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
+        .nav-link { font-weight: 600; color: #475569 !important; }
+        .nav-link:hover { color: var(--primary-color) !important; }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+        .hero h1 { font-weight: 700; font-size: 3rem; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; color: #cbd5e1; max-width: 800px; margin: 0 auto 30px; }
+        .btn-custom {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 600;
+            transition: transform 0.3s;
+        }
+        .btn-custom:hover { transform: translateY(-3px); color: white; }
+
+        /* Cards & Sections */
+        .section-title { text-align: center; font-weight: 700; margin-bottom: 40px; color: var(--dark-bg); }
+        .card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        /* Form Styles */
+        .form-control { border-radius: 10px; padding: 12px; border: 1px solid #cbd5e1; }
+        .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25); border-color: var(--primary-color); }
+        
+        /* Custom File Upload */
+        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .file-upload-btn { border: 2px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 10px; background: #f1f5f9; transition: 0.3s; }
+        .file-upload-wrapper:hover .file-upload-btn { border-color: var(--primary-color); background: #e0e7ff; }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+        <h5 class="mt-3 fw-bold text-primary">Memproses Data...</h5>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-shield-alt me-2"></i>SecureVault</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#tool">Encode / Decode</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#alur">Alur Sistem</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#glosarium">Glosarium</a></li>
+                    <li class="nav-item"><a class="nav-link text-primary fw-bold" href="/evaluation"><i class="fas fa-chart-pie me-1"></i>Laporan Evaluasi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tim">Tim</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Amankan Data Anda dengan <br><span style="color: var(--secondary-color);">Double Security</span></h1>
+            <p>SecureVault menggabungkan kekuatan enkripsi militer <strong>AES (Advanced Encryption Standard)</strong> dengan teknik penyembunyian data <strong>Steganografi LSB (Least Significant Bit)</strong>. Data dienkripsi, lalu disembunyikan di dalam gambar tanpa merusak visualnya.</p>
+            <a href="#tool" class="btn btn-custom btn-lg">Coba Sistem Sekarang <i class="fas fa-arrow-down ms-2"></i></a>
+        </div>
+    </section>
+
+    <!-- Tool Section (Form) -->
+    <section class="py-5" id="tool">
+        <div class="container">
+            <h2 class="section-title">Kriptografi & Steganografi</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card p-4">
+                        <form id="mainForm" action="/process" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                            
+                            <!-- File Upload -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">1. Pilih Media Penampung (Citra PNG)</label>
+                                <div class="file-upload-wrapper">
+                                    <div class="file-upload-btn">
+                                        <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i>
+                                        <p class="mb-0" id="fileName">Klik atau Tarik Gambar ke Sini</p>
+                                        <small class="text-muted">Disarankan format PNG (maks. 5MB)</small>
+                                    </div>
+                                    <input type="file" name="image" id="imageInput" accept="image/png, image/jpeg" required onchange="updateFileName()">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">2. Kunci Rahasia (Password)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-key text-primary"></i></span>
+                                    <input type="password" class="form-control" name="password" id="passwordInput" placeholder="Masukkan password unik..." required>
+                                    
+                                    <!-- Tombol Toggle Password -->
+                                    <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword" style="border-color: #ced4da;">
+                                        <i class="fas fa-eye text-muted" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Password ini digunakan untuk mengenkripsi dan mengacak posisi LSB.</small>
+                            </div>
+
+                            <!-- Secret Text -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">3. Pesan Rahasia (Kosongkan jika hanya ingin Decode)</label>
+                                <textarea class="form-control" name="secret_text" rows="3" placeholder="Ketik pesan yang ingin disembunyikan di sini..."></textarea>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" name="action" value="decode" class="btn btn-outline-primary px-4 py-2" style="border-radius: 10px;">
+                                    <i class="fas fa-unlock me-2"></i>Decode (Ekstrak)
+                                </button>
+                                <button type="submit" name="action" value="encode" class="btn btn-primary px-4 py-2" style="border-radius: 10px; background: var(--primary-color);">
+                                    <i class="fas fa-lock me-2"></i>Encode (Sisipkan)
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alur Sistem -->
+    <section class="py-5 bg-white" id="alur">
+        <div class="container">
+            <h2 class="section-title">Bagaimana Sistem Ini Bekerja?</h2>
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-file-signature fa-3x text-primary mb-3"></i>
+                        <h5>1. Input Data</h5>
+                        <p class="text-muted">Pengguna memasukkan pesan rahasia, gambar, dan password.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                        <h5>2. Enkripsi AES</h5>
+                        <p class="text-muted">Pesan diubah menjadi kode acak (ciphertext) menggunakan kunci AES-256.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-image fa-3x text-primary mb-3"></i>
+                        <h5>3. Penyisipan LSB</h5>
+                        <p class="text-muted">Ciphertext disisipkan ke bit terakhir piksel gambar secara acak.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-check-circle fa-3x text-primary mb-3"></i>
+                        <h5>4. Stego-Image</h5>
+                        <p class="text-muted">Gambar siap disimpan. Secara visual tidak ada yang berubah.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Glosarium -->
+    <section class="py-5" id="glosarium">
+        <div class="container">
+            <h2 class="section-title">Glosarium & Prinsip Kerja</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-4">
+                        <h4><i class="fas fa-network-wired text-primary me-2"></i>Keamanan Jaringan</h4>
+                        <p>Keamanan jaringan adalah praktik mencegah dan memantau akses tidak sah, penyalahgunaan, modifikasi, atau penolakan terhadap jaringan komputer dan sumber daya yang dapat diakses jaringan. Tujuannya adalah menjaga <strong>Kerahasiaan (Confidentiality)</strong>, <strong>Integritas (Integrity)</strong>, dan <strong>Ketersediaan (Availability)</strong> data.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-4">
+                        <h4><i class="fas fa-user-secret text-primary me-2"></i>Kriptografi vs Steganografi</h4>
+                        <p><strong>Kriptografi</strong> mengamankan data dengan mengubahnya menjadi bentuk yang tidak bisa dibaca (acak). <br><br><strong>Steganografi</strong> mengamankan data dengan menyembunyikan keberadaannya di dalam media lain (misal gambar). <br><br>Kombinasi keduanya menciptakan sistem "Double Security": Penyerang tidak tahu ada pesan, dan kalaupun tahu, mereka tidak bisa membacanya.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-4">
+                        <h4><i class="fas fa-shield-alt text-primary me-2"></i>AES (Advanced Encryption Standard)</h4>
+                        <p>Algoritma kriptografi simetris yang diakui secara global sebagai standar enkripsi. Sistem ini menggunakan mode <em>CBC (Cipher Block Chaining)</em> dengan kunci 256-bit yang diturunkan dari password pengguna menggunakan fungsi hash SHA-256. Sangat kuat terhadap serangan brute-force.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-4">
+                        <h4><i class="fas fa-images text-primary me-2"></i>LSB (Least Significant Bit)</h4>
+                        <p>Teknik steganografi dengan mengganti bit terakhir (paling kanan) dari nilai warna piksel (RGB). Karena perubahan pada bit terakhir hanya mengubah nilai warna sebesar 1 satuan, mata manusia tidak dapat melihat perbedaannya. Sistem ini juga menggunakan <em>Randomized LSB</em> (posisi disisipkan secara acak berdasarkan password) agar lebih aman dari deteksi.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluasi -->
+    <section class="py-5 bg-white" id="evaluasi">
+        <div class="container">
+            <h2 class="section-title">Metrik Evaluasi Kualitas</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover text-center align-middle">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Metrik</th>
+                                    <th>Deskripsi</th>
+                                    <th>Standar Kualitas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>PSNR (Peak Signal-to-Noise Ratio)</strong></td>
+                                    <td>Mengukur rasio antara kekuatan sinyal maksimum dan kekuatan noise yang mempengaruhi kualitas citra.</td>
+                                    <td><span class="badge bg-success">> 40 dB (Sangat Baik)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>MSE (Mean Squared Error)</strong></td>
+                                    <td>Mengukur rata-rata kesalahan kuadrat antara citra asli dan citra stego.</td>
+                                    <td><span class="badge bg-success">Mendekati 0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SSIM (Structural Similarity Index)</strong></td>
+                                    <td>Mengukur kemiripan struktur antara dua gambar berdasarkan persepsi visual manusia.</td>
+                                    <td><span class="badge bg-success">Mendekati 1.0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Integritas Hash (SHA-256)</strong></td>
+                                    <td>Memastikan data yang diekstrak 100% sama persis dengan data yang dimasukkan sebelum dienkripsi.</td>
+                                    <td><span class="badge bg-success">Match (BER = 0)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tim Pengembang -->
+    <section class="py-5" id="tim">
+        <div class="container">
+            <h2 class="section-title">Tim Pengembang</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-4 text-center mb-4">
+                    <div class="card p-4">
+                        <i class="fas fa-user-circle fa-4x text-secondary mb-3"></i>
+                        <h5 class="fw-bold">Nurul Izza Azahra</h5>
+                        <p class="text-muted mb-1">230533604066</p>
+                        <small>Universitas Negeri Malang</small>
+                        <small>S1 Pendidikan Teknik Informatika</small></div>
+                </div>
+                <div class="col-md-4 text-center mb-4">
+                    <div class="card p-4">
+                        <i class="fas fa-user-circle fa-4x text-secondary mb-3"></i>
+                        <h5 class="fw-bold">Nilam Maharani</h5>
+                        <p class="text-muted mb-1">230533605598</p>
+                        <small>Universitas Negeri Malang</small>
+                        <small>S1 Pendidikan Teknik Informatika</small></div>
+                </div>
+                <div class="col-md-4 text-center mb-4">
+                    <div class="card p-4">
+                        <i class="fas fa-user-circle fa-4x text-secondary mb-3"></i>
+                        <h5 class="fw-bold">Viria Rihadatul Salzabil</h5>
+                        <p class="text-muted mb-1">230533607483</p>
+                        <small>Universitas Negeri Malang</small>
+                        <small>S1 Pendidikan Teknik Informatika</small>
+                    </div>
+                </div>
+                <!-- Anda bisa menambah anggota tim lain di sini dengan meng-copy div col-md-4 di atas -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 SecureVault Project. Dibuat untuk Tugas Keamanan Jaringan.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS & Custom JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fungsi untuk menampilkan nama file saat di-upload
+        function updateFileName() {
+            const input = document.getElementById('imageInput');
+            const fileNameDisplay = document.getElementById('fileName');
+            if (input.files && input.files.length > 0) {
+                fileNameDisplay.innerHTML = `<strong class="text-success"><i class="fas fa-check-circle me-1"></i> ${input.files[0].name}</strong>`;
+            } else {
+                fileNameDisplay.innerHTML = 'Klik atau Tarik Gambar ke Sini';
+            }
+        }
+
+        // Fungsi untuk menampilkan loading overlay saat submit
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        // Menutup navbar otomatis saat link di-klik di tampilan mobile
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const navbarCollapse = document.getElementById('navbarNav');
+                if (navbarCollapse.classList.contains('show')) {
+                    new bootstrap.Collapse(navbarCollapse).hide();
+                }
+            });
+        });
+        
+        // Fitur Show/Hide Password
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            // Cek tipe input saat ini
+            if (passwordInput.type === 'password') {
+                // Ubah ke teks (terlihat)
+                passwordInput.type = 'text';
+                // Ubah ikon jadi mata dicoret
+                eyeIcon.classList.remove('fa-eye', 'text-muted');
+                eyeIcon.classList.add('fa-eye-slash', 'text-primary');
+            } else {
+                // Ubah kembali ke password (tersembunyi)
+                passwordInput.type = 'password';
+                // Ubah ikon jadi mata terbuka
+                eyeIcon.classList.remove('fa-eye-slash', 'text-primary');
+                eyeIcon.classList.add('fa-eye', 'text-muted');
+            }
+        });
+    </script>
+</body>
+</html>
