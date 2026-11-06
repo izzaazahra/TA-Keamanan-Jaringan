@@ -1,4 +1,4 @@
-No,Ukuran Asli (Byte),Ukuran Encrypt (Byte),MSE,PSNR (dB),SSIM,Integritas (Hash)
+No,Ukuran Asli (Byte),Ukuran Encrypt (Byte),MSE,PSNR (dB),SSIM,BER/Hash
 1,10,32,0.0001,90.36,1.0,Match
 2,50,80,0.0001,86.85,1.0,Match
 3,100,128,0.0002,84.93,1.0,Match

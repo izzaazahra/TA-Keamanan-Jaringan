@@ -52,7 +52,7 @@ for i, size in enumerate(payload_sizes):
             "MSE": round(mse, 4),
             "PSNR (dB)": round(psnr_val, 2),
             "SSIM": round(ssim_val, 4),
-            "Integritas (Hash)": is_match
+            "BER/Hash": is_match
         })
         print(f"Payload {size} bytes: PSNR={psnr_val:.2f}, SSIM={ssim_val:.4f}, {is_match}")
         

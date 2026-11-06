@@ -18,28 +18,216 @@
             --dark-bg: #0f172a; /* Deep Navy */
             --light-bg: #f8fafc;
         }
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 68px;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--light-bg);
             color: #334155;
-            scroll-behavior: smooth;
-            padding-top: 0; /* Dihapus agar Carousel menyatu dengan Navbar */
+            padding-top: 0;
         }
         
-        /* Navbar Customization (Gelap & Transparan agar menyatu dengan Carousel) */
+        /* Ukuran Standar Tinggi Tiap Section untuk PC (1 Layar Penuh dengan Penyesuaian Konten) */
+        section {
+            scroll-margin-top: 68px;
+            position: relative;
+        }
+        
+        @media (min-width: 992px) {
+            section {
+                min-height: calc(100vh - 68px); /* Standar PC: Tepat memenuhi 1 layar penuh di bawah navbar */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding-top: 50px !important;
+                padding-bottom: 50px !important;
+                box-sizing: border-box;
+            }
+            section > .container {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            section {
+                min-height: auto;
+                padding-top: 60px;
+                padding-bottom: 60px;
+                scroll-margin-top: 70px;
+            }
+        }
+        
+        /* Navbar Customization (Putih Bersih dengan Menu Full Persegi & Animasi Slide) */
         .navbar {
-            background-color: rgba(247, 250, 255, 0.8) !important; /* Warna gelap transparan */
+            background-color: #ffffff !important;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+            border-bottom: 1px solid #f1f5f9;
             transition: all 0.3s ease;
-            padding: 15px 0;
+            padding: 0;
+            z-index: 1030;
         }
-        .navbar-brand { font-weight: 700; color: white !important; font-size: 1.5rem; }
-        .navbar-brand i { color: var(--primary-color); }
-        .nav-link { font-weight: 500; color: #e2e8f0 !important; transition: 0.3s; margin: 0 5px; }
-        .nav-link:hover, .nav-link.active { color: var(--secondary-color) !important; }
-        .navbar-toggler { border-color: rgba(255,255,255,0.2); }
-        .navbar-toggler-icon { filter: invert(1); }
+        .navbar-brand { 
+            font-weight: 700; 
+            color: var(--primary-color) !important; 
+            font-size: 1.45rem; 
+            display: inline-flex;
+            align-items: center;
+            letter-spacing: -0.3px;
+        }
+        .navbar-brand i { 
+            color: var(--primary-color); 
+        }
+        .navbar-nav {
+            margin: 0;
+            padding: 0;
+            gap: 0;
+        }
+        .nav-link { 
+            font-weight: 600; 
+            font-size: 0.93rem;
+            color: #475569 !important; 
+            border-radius: 0 !important;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent !important;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: none !important;
+            margin: 0;
+        }
+        .nav-link i {
+            color: #64748b;
+            transition: color 0.3s ease;
+            margin-right: 6px;
+        }
+        
+        /* Pseudo-element Background Persegi Full Navbar dengan Animasi Slide (Bawah ke Atas & Atas ke Bawah) */
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            z-index: -1;
+            transform: translateY(100%); /* Awalnya di bawah (tersembunyi) */
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hover dan Active: Slide naik dari bawah ke atas */
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: translateY(0); /* Muncul ke atas */
+        }
+
+        /* Saat tidak aktif/hover dilepas: otomatis slide turun dari atas ke bawah kembali ke translateY(100%) */
+        .nav-link:hover,
+        .nav-link.active {
+            color: #ffffff !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .nav-link:hover i,
+        .nav-link.active i {
+            color: #ffffff !important;
+        }
+
+        /* Hilangkan efek :focus bawaan browser agar background tidak tertinggal setelah klik */
+        .nav-link:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .navbar-toggler { 
+            border-color: #cbd5e1; 
+            padding: 6px 10px;
+        }
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2);
+        }
+        .navbar-toggler-icon { 
+            filter: none; 
+        }
+
+        /* Desktop: Menu memenuhi tinggi navbar secara full persegi */
+        @media (min-width: 992px) {
+            .navbar {
+                height: 68px;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            .navbar > .container {
+                height: 100%;
+                display: flex;
+                align-items: stretch;
+            }
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                padding: 0;
+                margin-right: 2rem;
+            }
+            .navbar-collapse {
+                height: 100%;
+                display: flex !important;
+                align-items: stretch;
+            }
+            .navbar-nav {
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                margin: 0;
+                gap: 0;
+            }
+            .navbar-nav .nav-item {
+                height: 100%;
+                display: flex;
+                align-items: stretch;
+                margin: 0;
+            }
+            .navbar-nav .nav-link {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 22px !important;
+                border-radius: 0 !important;
+            }
+        }
+
+        /* Mobile: Menu dropdown responsif */
+        @media (max-width: 991.98px) {
+            .navbar {
+                padding: 10px 0;
+            }
+            .navbar-collapse {
+                background: #ffffff;
+                padding: 10px 0;
+                border-radius: 0;
+                margin-top: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+                border-top: 1px solid #f1f5f9;
+            }
+            .navbar-nav {
+                gap: 0;
+            }
+            .navbar-nav .nav-link {
+                width: 100%;
+                padding: 14px 20px !important;
+                border-radius: 0 !important;
+            }
+        }
         
         /* Hero Carousel (Full Screen) */
         .carousel-item {
@@ -98,18 +286,188 @@
 
         /* Cards & Sections */
         .section-title { text-align: center; font-weight: 700; margin-bottom: 40px; color: var(--dark-bg); }
-        .custom-card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; background: white; padding: 20px;}
-        .custom-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        
+        .custom-card { 
+            border: 1px solid rgba(226, 232, 240, 0.9); 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+            background: white; 
+        }
+        .custom-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 35px rgba(37, 99, 235, 0.1); 
+        }
+
+        /* Mode Pill Switcher (Tab Selector) */
+        .mode-switch-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .mode-switch-wrapper {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 50px;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+            gap: 4px;
+        }
+        .mode-switch-btn {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .mode-switch-btn:hover {
+            color: var(--primary-color);
+        }
+        .mode-switch-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+
+        /* Step Badge Indicator */
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            background: #eff6ff;
+            color: var(--primary-color);
+            border: 1.5px solid #bfdbfe;
+            border-radius: 50%;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-right: 10px;
+            transition: all 0.25s ease;
+        }
+
         /* Form Styles */
-        .form-control { border-radius: 10px; padding: 12px; border: 1px solid #cbd5e1; }
-        .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25); border-color: var(--primary-color); }
-        
-        /* Custom File Upload */
-        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .file-upload-btn { border: 2px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 10px; background: #f1f5f9; transition: 0.3s; }
-        .file-upload-wrapper:hover .file-upload-btn { border-color: var(--primary-color); background: #e0e7ff; }
+        .form-control { 
+            border-radius: 10px; 
+            padding: 12px 14px; 
+            border: 1px solid #cbd5e1; 
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus { 
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.18); 
+            border-color: var(--primary-color); 
+        }
+
+        /* Drag & Drop File Upload */
+        .file-upload-wrapper { 
+            position: relative; 
+            overflow: hidden; 
+            display: inline-block; 
+            width: 100%; 
+            border-radius: 14px;
+        }
+        .file-upload-wrapper input[type=file] { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%;
+            height: 100%;
+            opacity: 0; 
+            cursor: pointer; 
+            z-index: 5;
+        }
+        .file-upload-btn { 
+            border: 2px dashed #cbd5e1; 
+            padding: 30px 20px; 
+            text-align: center; 
+            border-radius: 14px; 
+            background: #f8fafc; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .file-upload-wrapper:hover .file-upload-btn,
+        .file-upload-wrapper.dragover .file-upload-btn { 
+            border-color: var(--primary-color); 
+            background: #eff6ff; 
+            transform: scale(1.005);
+        }
+        .file-upload-wrapper.has-file .file-upload-btn {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        .upload-icon-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--primary-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            transition: transform 0.3s ease;
+        }
+        .file-upload-wrapper:hover .upload-icon-circle {
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        /* Tab Transition Animation */
+        .tab-fade-in {
+            animation: fadeInMode 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeInMode {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Primary Action Button */
+        .btn-submit-action {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-submit-action:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
+            transform: translateY(-2px);
+            color: white;
+        }
+        .btn-submit-action:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .btn-submit-action:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.85;
+            transform: none;
+        }
 
         /* Loading Overlay */
         #loading-overlay {
@@ -117,16 +475,7 @@
             background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
         }
 
-        /* Navbar */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .navbar-brand { font-weight: 700; color: var(--primary-color) !important; }
-        .nav-link { font-weight: 600; color: #475569 !important; }
-        .nav-link:hover { color: var(--primary-color) !important; }
-        
+
         /* Hero Section */
         .hero {
             background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
@@ -143,26 +492,9 @@
         }
         .btn-custom:hover { transform: translateY(-3px); color: white; }
 
-        /* Cards & Sections */
-        .section-title { text-align: center; font-weight: 700; margin-bottom: 40px; color: var(--dark-bg); }
+        /* General Card */
         .card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        
-        /* Form Styles */
-        .form-control { border-radius: 10px; padding: 12px; border: 1px solid #cbd5e1; }
-        .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25); border-color: var(--primary-color); }
-        
-        /* Custom File Upload */
-        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .file-upload-btn { border: 2px dashed #cbd5e1; padding: 30px; text-align: center; border-radius: 10px; background: #f1f5f9; transition: 0.3s; }
-        .file-upload-wrapper:hover .file-upload-btn { border-color: var(--primary-color); background: #e0e7ff; }
-
-        /* Loading Overlay */
-        #loading-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
-        }
 
         /* CSS ALUR SISTEM */
         .process-wrapper {
@@ -898,7 +1230,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#tool"><i class="fas fa-exchange-alt me-1"></i> Encode / Decode</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tool"><i class="fas fa-tools me-1"></i> Uji Sistem</a></li>
                     <li class="nav-item"><a class="nav-link" href="#alur"><i class="fas fa-project-diagram me-1"></i> Alur Sistem</a></li>
                     <li class="nav-item"><a class="nav-link" href="#glosarium"><i class="fas fa-book me-1"></i> Glosarium</a></li>
                     <li class="nav-item"><a class="nav-link text-warning fw-bold" href="#evaluasi"><i class="fas fa-chart-line me-1"></i> Metrik Evaluasi</a></li>
@@ -990,53 +1322,86 @@
     <!-- Tool Section (Form) -->
     <section class="py-5" id="tool">
         <div class="container">
-            <h2 class="section-title">Kriptografi & Steganografi</h2>
+            <div class="text-center mb-4">
+                <h2 class="section-title mb-2">Enskripsi & Deskripsi</h2>
+                <p class="text-muted fs-6 mb-0">Pengamanan data ganda menggunakan metode Kriptografi dan Steganografi</p>
+            </div>
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <div class="custom-card p-4">
-                        <form id="mainForm" action="/process" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                    <div class="custom-card p-4 p-md-5">
+                        
+                        <!-- 1. Struktur Tab / Mode Selector -->
+                        <div class="mode-switch-container">
+                            <div class="mode-switch-wrapper" role="tablist" aria-label="Mode">
+                                <button type="button" class="mode-switch-btn active" id="tabEncode" onclick="switchMode('encode')" role="tab" aria-selected="true" aria-controls="mainForm">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Enskripsi</span>
+                                </button>
+                                <button type="button" class="mode-switch-btn" id="tabDecode" onclick="switchMode('decode')" role="tab" aria-selected="false" aria-controls="mainForm">
+                                    <i class="fas fa-unlock"></i>
+                                    <span>Deskripsi</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Form Proses Utama -->
+                        <form id="mainForm" action="/process" method="post" enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)">
+                            <input type="hidden" name="action" id="formAction" value="encode">
                             
-                            <!-- File Upload -->
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">1. Pilih Media Penampung (Citra PNG)</label>
-                                <div class="file-upload-wrapper">
-                                    <div class="file-upload-btn">
-                                        <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i>
-                                        <p class="mb-0" id="fileName">Klik atau Tarik Gambar ke Sini</p>
-                                        <small class="text-muted">Disarankan format PNG (maks. 5MB)</small>
+                            <!-- 2. Step 1: Upload Media -->
+                            <div class="mb-4 tab-fade-in" id="stepUploadGroup">
+                                <label class="form-label fw-bold d-flex align-items-center mb-2">
+                                    <span class="step-badge" id="step1Badge">1</span>
+                                    <span id="uploadLabelTitle">Gambar Cover</span>
+                                </label>
+                                <div class="file-upload-wrapper" id="dropZone">
+                                    <div class="file-upload-btn" id="dropZoneContent">
+                                        <div class="upload-icon-circle mb-2" id="uploadIconContainer">
+                                            <i class="fas fa-cloud-upload-alt" id="uploadIcon"></i>
+                                        </div>
+                                        <p class="mb-1 fw-semibold fs-6" id="fileName">Pilih atau letakkan gambar di sini</p>
+                                        <small class="text-muted d-block" id="uploadSubtext">Format PNG, maks. 5MB</small>
+                                        <div id="fileStatusBadge" class="d-none mt-2">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-medium">
+                                                <i class="fas fa-check-circle me-1"></i> <span id="fileDetailsText"></span>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <input type="file" name="image" id="imageInput" accept="image/png, image/jpeg" required onchange="updateFileName()">
+                                    <input type="file" name="image" id="imageInput" accept="image/png, image/jpeg" required onchange="handleFileChange(this)">
                                 </div>
                             </div>
 
-                            <!-- Password -->
+                            <!-- Step 2: Password -->
                             <div class="mb-4">
-                                <label class="form-label fw-bold">2. Kunci Rahasia (Password)</label>
+                                <label class="form-label fw-bold d-flex align-items-center mb-2">
+                                    <span class="step-badge" id="step2Badge">2</span>
+                                    <span id="passwordLabelTitle">Password</span>
+                                </label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fas fa-key text-primary"></i></span>
-                                    <input type="password" class="form-control" name="password" id="passwordInput" placeholder="Masukkan password unik..." required>
-                                    
-                                    <!-- Tombol Toggle Password -->
-                                    <button class="btn btn-outline-secondary bg-white" type="button" id="togglePassword" style="border-color: #ced4da;">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-key text-primary"></i></span>
+                                    <input type="password" class="form-control border-start-0 border-end-0 ps-1" name="password" id="passwordInput" placeholder="Masukkan password..." required autocomplete="current-password" oninput="validateForm()">
+                                    <button class="btn btn-outline-secondary bg-white border-start-0 px-3" type="button" id="togglePassword" title="Lihat/Sembunyikan Password" style="border-color: #cbd5e1;">
                                         <i class="fas fa-eye text-muted" id="eyeIcon"></i>
                                     </button>
                                 </div>
-                                <small class="text-muted">Password ini digunakan untuk mengenkripsi dan mengacak posisi LSB.</small>
                             </div>
 
-                            <!-- Secret Text -->
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">3. Pesan Rahasia (Kosongkan jika hanya ingin Decode)</label>
-                                <textarea class="form-control" name="secret_text" rows="3" placeholder="Ketik pesan yang ingin disembunyikan di sini..."></textarea>
+                            <!-- Step 3: Pesan Rahasia (Dynamic: Hanya aktif pada Mode Encode) -->
+                            <div class="mb-4 tab-fade-in" id="secretTextGroup">
+                                <label class="form-label fw-bold d-flex align-items-center mb-2">
+                                    <span class="step-badge" id="step3Badge">3</span>
+                                    <span id="secretTextLabelTitle">Pesan Rahasia</span>
+                                </label>
+                                <textarea class="form-control" name="secret_text" id="secretTextInput" rows="4" placeholder="Ketik pesan rahasia di sini..." required oninput="validateForm(); updateCharCount(this);"></textarea>
+                                <div class="d-flex justify-content-end align-items-center mt-1">
+                                    <small class="text-muted fw-semibold" id="charCounter">0 karakter</small>
+                                </div>
                             </div>
 
-                            <!-- Buttons -->
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                <button type="submit" name="action" value="decode" class="btn btn-outline-primary px-4 py-2" style="border-radius: 10px;">
-                                    <i class="fas fa-unlock me-2"></i>Decode (Ekstrak)
-                                </button>
-                                <button type="submit" name="action" value="encode" class="btn btn-primary px-4 py-2" style="border-radius: 10px; background: var(--primary-color);">
-                                    <i class="fas fa-lock me-2"></i>Encode (Sisipkan)
+                            <!-- 3. Tombol Aksi Utama (Call-to-Action) -->
+                            <div class="mt-4 pt-2">
+                                <button type="submit" id="submitBtn" class="btn btn-submit-action w-100 py-3" disabled>
+                                    <span id="btnText">Proses</span>
                                 </button>
                             </div>
                         </form>
@@ -1253,12 +1618,19 @@
                             </div>
                             <span class="badge custom-badge bg-success-soft"><i class="fas fa-shield-alt me-1"></i> Match (BER=0)</span>
                         </div>
-                        <h4 class="fw-bold mb-2">Integritas Hash</h4>
+                        <h4 class="fw-bold mb-2">BER/Hash</h4>
                         <h6 class="text-secondary mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">SHA-256 ALGORITHM</h6>
                         <p class="text-muted mb-0">Memastikan data yang diekstrak 100% sama persis (Bit Error Rate = 0) dengan data yang dimasukkan sebelum dienkripsi.</p>
                     </div>
                 </div>
 
+            </div>
+
+            <!-- Tombol Navigasi ke Halaman Evaluasi Lengkap -->
+            <div class="text-center mt-5">
+                <a href="/evaluation" class="btn btn-custom btn-lg">
+                    <i class="fas fa-table me-2"></i>Lihat Tabel Evaluasi Lengkap (10 Sampel) <i class="fas fa-arrow-right ms-2"></i>
+                </a>
             </div>
 
             <!-- BUTTON HALAMAN LAPORAN HASIL EVALUASI -->
@@ -1459,30 +1831,339 @@
 
        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            // Fungsi untuk menampilkan nama file saat di-upload
-            function updateFileName() {
-                const input = document.getElementById('imageInput');
-                const fileNameDisplay = document.getElementById('fileName');
-                if (input.files && input.files.length > 0) {
-                    fileNameDisplay.innerHTML = `<strong class="text-success"><i class="fas fa-check-circle me-1"></i> ${input.files[0].name}</strong>`;
+            // State Mode Steganografi ('encode' | 'decode')
+            let currentMode = 'encode';
+
+            // 1. Fungsi Switch Mode (Encode / Decode)
+            function switchMode(mode) {
+                if (currentMode === mode) return;
+                currentMode = mode;
+
+                const formAction = document.getElementById('formAction');
+                const tabEncode = document.getElementById('tabEncode');
+                const tabDecode = document.getElementById('tabDecode');
+                const uploadLabelTitle = document.getElementById('uploadLabelTitle');
+                const uploadSubtext = document.getElementById('uploadSubtext');
+                const secretTextGroup = document.getElementById('secretTextGroup');
+                const secretTextInput = document.getElementById('secretTextInput');
+                const submitBtn = document.getElementById('submitBtn');
+                const btnText = document.getElementById('btnText');
+                const uploadIcon = document.getElementById('uploadIcon');
+                const stepUploadGroup = document.getElementById('stepUploadGroup');
+
+                formAction.value = mode;
+
+                if (mode === 'encode') {
+                    // Update State Tab Switcher
+                    tabEncode.classList.add('active');
+                    tabEncode.setAttribute('aria-selected', 'true');
+                    tabDecode.classList.remove('active');
+                    tabDecode.setAttribute('aria-selected', 'false');
+
+                    // Update Labels
+                    uploadLabelTitle.textContent = 'Gambar Cover';
+                    uploadSubtext.textContent = 'Format PNG, maks. 5MB';
+                    uploadIcon.className = 'fas fa-cloud-upload-alt';
+
+                    // Tampilkan Field Pesan Rahasia dengan animasi halus
+                    secretTextGroup.style.display = 'block';
+                    secretTextGroup.classList.remove('tab-fade-in');
+                    void secretTextGroup.offsetWidth; // Reflow trigger
+                    secretTextGroup.classList.add('tab-fade-in');
+                    secretTextInput.setAttribute('required', 'required');
+                    secretTextInput.disabled = false;
+
+                    // Update Tombol CTA
+                    btnText.textContent = 'Proses';
                 } else {
-                    fileNameDisplay.innerHTML = 'Klik atau Tarik Gambar ke Sini';
+                    // Update State Tab Switcher
+                    tabDecode.classList.add('active');
+                    tabDecode.setAttribute('aria-selected', 'true');
+                    tabEncode.classList.remove('active');
+                    tabEncode.setAttribute('aria-selected', 'false');
+
+                    // Update Labels
+                    uploadLabelTitle.textContent = 'Gambar Stego';
+                    uploadSubtext.textContent = 'Format PNG, maks. 5MB';
+                    uploadIcon.className = 'fas fa-file-import';
+
+                    // Sembunyikan Field Pesan Rahasia pada Mode Decode
+                    secretTextGroup.style.display = 'none';
+                    secretTextInput.removeAttribute('required');
+                    secretTextInput.disabled = true;
+
+                    // Update Tombol CTA
+                    btnText.textContent = 'Proses';
                 }
+
+                // Animasi halus pada grup upload
+                stepUploadGroup.classList.remove('tab-fade-in');
+                void stepUploadGroup.offsetWidth;
+                stepUploadGroup.classList.add('tab-fade-in');
+
+                validateForm();
+            }
+
+            // 2. Fungsi Validasi & Update Informasi File saat Upload
+            function handleFileChange(input) {
+                const fileNameDisplay = document.getElementById('fileName');
+                const fileStatusBadge = document.getElementById('fileStatusBadge');
+                const fileDetailsText = document.getElementById('fileDetailsText');
+                const dropZone = document.getElementById('dropZone');
+
+                if (input.files && input.files.length > 0) {
+                    const file = input.files[0];
+
+                    // Validasi batas ukuran file (maks 5MB)
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    if (file.size > maxSize) {
+                        alert('Ukuran file melebihi 5MB! Silakan pilih citra lain yang berukuran di bawah 5MB.');
+                        input.value = '';
+                        fileNameDisplay.textContent = 'Pilih atau letakkan gambar di sini';
+                        fileStatusBadge.classList.add('d-none');
+                        dropZone.classList.remove('has-file');
+                        validateForm();
+                        return;
+                    }
+
+                    const fileSizeKB = (file.size / 1024).toFixed(1);
+                    const fileSizeFormatted = file.size > 1024 * 1024 
+                        ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+                        : fileSizeKB + ' KB';
+
+                    fileNameDisplay.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${file.name}</span>`;
+                    fileDetailsText.textContent = `${file.name} (${fileSizeFormatted})`;
+                    fileStatusBadge.classList.remove('d-none');
+                    dropZone.classList.add('has-file');
+                } else {
+                    fileNameDisplay.textContent = 'Pilih atau letakkan gambar di sini';
+                    fileStatusBadge.classList.add('d-none');
+                    dropZone.classList.remove('has-file');
+                }
+
+                validateForm();
+            }
+
+            // Hitung Karakter Pesan Rahasia
+            function updateCharCount(textarea) {
+                const counter = document.getElementById('charCounter');
+                if (counter) {
+                    counter.textContent = `${textarea.value.length} karakter`;
+                }
+            }
+
+            // 3. Validasi Form Real-time (Aktifkan / Nonaktifkan Tombol CTA)
+            function validateForm() {
+                const imageInput = document.getElementById('imageInput');
+                const passwordInput = document.getElementById('passwordInput');
+                const secretTextInput = document.getElementById('secretTextInput');
+                const submitBtn = document.getElementById('submitBtn');
+
+                if (!imageInput || !passwordInput || !submitBtn) return;
+
+                const hasFile = imageInput.files && imageInput.files.length > 0;
+                const hasPassword = passwordInput.value.trim().length > 0;
+                const hasSecretText = currentMode === 'decode' || (secretTextInput && secretTextInput.value.trim().length > 0);
+
+                if (hasFile && hasPassword && hasSecretText) {
+                    submitBtn.removeAttribute('disabled');
+                } else {
+                    submitBtn.setAttribute('disabled', 'disabled');
+                }
+            }
+
+            // Form Submit Handler
+            function handleFormSubmit(event) {
+                const imageInput = document.getElementById('imageInput');
+                const passwordInput = document.getElementById('passwordInput');
+                const secretTextInput = document.getElementById('secretTextInput');
+
+                if (!imageInput.files || imageInput.files.length === 0) {
+                    alert('Harap pilih atau unggah citra gambar terlebih dahulu!');
+                    if (event) event.preventDefault();
+                    return false;
+                }
+                if (!passwordInput.value.trim()) {
+                    alert('Harap masukkan password/kunci rahasia!');
+                    if (event) event.preventDefault();
+                    return false;
+                }
+                if (currentMode === 'encode' && (!secretTextInput || !secretTextInput.value.trim())) {
+                    alert('Harap masukkan teks pesan rahasia yang ingin disisipkan!');
+                    if (event) event.preventDefault();
+                    return false;
+                }
+
+                showLoading();
+                return true;
             }
 
             // Fungsi untuk menampilkan loading overlay saat submit
             function showLoading() {
-                document.getElementById('loading-overlay').style.display = 'flex';
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
             }
 
-            // Menutup navbar otomatis saat link di-klik di tampilan mobile
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    const navbarCollapse = document.getElementById('navbarNav');
-                    if (navbarCollapse.classList.contains('show')) {
-                        new bootstrap.Collapse(navbarCollapse).hide();
+            // Inisialisasi Drag & Drop Event & Validasi Awal
+            document.addEventListener('DOMContentLoaded', function() {
+                const dropZone = document.getElementById('dropZone');
+                const imageInput = document.getElementById('imageInput');
+
+                if (dropZone && imageInput) {
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dropZone.classList.add('dragover');
+                        });
+                    });
+
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dropZone.classList.remove('dragover');
+                        });
+                    });
+
+                    dropZone.addEventListener('drop', (e) => {
+                        const dt = e.dataTransfer;
+                        if (dt && dt.files && dt.files.length > 0) {
+                            imageInput.files = dt.files;
+                            handleFileChange(imageInput);
+                        }
+                    });
+                }
+                
+                validateForm();
+            });
+
+            // 4. Navigasi Halus (Smooth Scroll) dengan Offset Navbar & Tutup Mobile Menu
+            const navItems = [
+                { id: 'tool', link: document.querySelector('.navbar-nav a[href="#tool"]') },
+                { id: 'alur', link: document.querySelector('.navbar-nav a[href="#alur"]') },
+                { id: 'glosarium', link: document.querySelector('.navbar-nav a[href="#glosarium"]') },
+                { id: 'evaluasi', link: document.querySelector('.navbar-nav a[href="#evaluasi"]') },
+                { id: 'tim', link: document.querySelector('.navbar-nav a[href="#tim"]') }
+            ];
+
+            function setActiveNavLink(id) {
+                navItems.forEach(item => {
+                    if (item.link) {
+                        if (item.id === id) {
+                            item.link.classList.add('active');
+                        } else {
+                            item.link.classList.remove('active');
+                            item.link.blur();
+                        }
                     }
                 });
+            }
+
+            function updateNavbarActive() {
+                const navbar = document.querySelector('.navbar');
+                const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+                const windowHeight = window.innerHeight;
+                const docHeight = document.documentElement.scrollHeight;
+
+                // Jika sudah scroll sampai dasar halaman, tandai menu Tim sebagai aktif
+                if (scrollY + windowHeight >= docHeight - 60) {
+                    setActiveNavLink('tim');
+                    return;
+                }
+
+                let currentId = null;
+                for (let i = 0; i < navItems.length; i++) {
+                    const sec = document.getElementById(navItems[i].id);
+                    if (sec) {
+                        const secTop = sec.offsetTop - navbarHeight - 20;
+                        const secHeight = sec.offsetHeight;
+                        if (scrollY >= secTop && scrollY < secTop + secHeight) {
+                            currentId = navItems[i].id;
+                            break;
+                        }
+                    }
+                }
+
+                setActiveNavLink(currentId);
+            }
+
+            // Pasang event listener untuk semua anchor link dengan target #
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    this.blur(); // Langsung hilangkan status focus browser setelah diklik
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#' || targetId === '') {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setActiveNavLink(null);
+                        return;
+                    }
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        e.preventDefault();
+                        const navbar = document.querySelector('.navbar');
+                        const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+
+                        window.scrollTo({
+                            top: Math.max(0, targetPosition),
+                            behavior: 'smooth'
+                        });
+
+                        if (history.pushState) {
+                            history.pushState(null, null, targetId);
+                        }
+
+                        // Jika link yang diklik adalah menu navbar, langsung highlight aktif
+                        const cleanId = targetId.replace('#', '');
+                        setActiveNavLink(cleanId);
+
+                        // Tutup navbar otomatis saat link di-klik di tampilan mobile
+                        const navbarCollapse = document.getElementById('navbarNav');
+                        if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+                            new bootstrap.Collapse(navbarCollapse).hide();
+                        }
+                    }
+                });
+            });
+
+            // Pantau posisi scroll untuk Scrollspy secara performan
+            let isScrollTicking = false;
+            window.addEventListener('scroll', function() {
+                if (!isScrollTicking) {
+                    window.requestAnimationFrame(function() {
+                        updateNavbarActive();
+                        isScrollTicking = false;
+                    });
+                    isScrollTicking = true;
+                }
+            }, { passive: true });
+
+            // Cek posisi aktif awal saat halaman dibuka
+            updateNavbarActive();
+
+            // Atur posisi awal jika URL mengandung hash (misal #tool) agar tidak tertutup navbar
+            window.addEventListener('load', function() {
+                if (window.location.hash) {
+                    const target = document.querySelector(window.location.hash);
+                    if (target) {
+                        setTimeout(() => {
+                            const navbar = document.querySelector('.navbar');
+                            const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                            window.scrollTo({
+                                top: Math.max(0, targetPosition),
+                                behavior: 'smooth'
+                            });
+                            updateNavbarActive();
+                        }, 120);
+                    }
+                }
             });
             
             // Fitur Show/Hide Password
@@ -1628,8 +2309,14 @@
             const iconElement = document.getElementById('detail-icon');
             iconElement.className = `fas ${data.icon}`;
             
-            // 5. Scroll perlahan ke bagian tim (opsional, agar tidak terkejut)
-            document.getElementById('tim').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // 5. Scroll perlahan ke bagian tim dengan memperhitungkan tinggi navbar
+            const timSection = document.getElementById('tim');
+            if (timSection) {
+                const navbar = document.querySelector('.navbar');
+                const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                const targetPosition = timSection.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
+            }
         }
 
         function closeProfile() {
