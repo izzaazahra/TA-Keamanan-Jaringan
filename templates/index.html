@@ -661,6 +661,224 @@
             .team-detail-container { padding: 30px 20px; }
             .big-avatar-wrapper { width: 180px; height: 180px; font-size: 5rem; }
         }
+
+        /* Tombol Halaman Laporan Evaluasi */
+        .btn-glass-eval {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+            transition: box-shadow 0.3s, background 0.3s; /* Transition transform dihapus karena diurus JS */
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .btn-glass-eval:hover {
+            color: white;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.5);
+        }
+
+        /* Class tambahan saat tombol di-loading */
+        .btn-glass-eval.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .btn-glass-eval.loading .btn-text {
+            visibility: hidden;
+        }
+
+        .btn-glass-eval.loading::after {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid white;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Efek Ripple (Gelombang Air saat diklik) */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+
+        @keyframes ripple-anim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Footer Kustom */
+        .custom-footer {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Efek Grid Tipis di Background Footer */
+        .custom-footer::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .custom-footer .container {
+            position: relative;
+            z-index: 1; /* Agar konten di atas grid */
+        }
+
+        /* Brand di Footer */
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .footer-brand i { color: var(--secondary-color); }
+        .footer-brand:hover { text-shadow: 0 0 15px rgba(6, 182, 212, 0.5); color: white; }
+
+        /* Judul Kolom */
+        .footer-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        /* Link Navigasi */
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer-links li { margin-bottom: 12px; }
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .footer-links a:hover {
+            color: var(--secondary-color);
+            transform: translateX(5px); /* Geser ke kanan saat di-hover */
+        }
+
+        /* Tombol Sosial Media */
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .social-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        /* Form Newsletter */
+        .custom-input-group {
+            background: rgba(255,255,255,0.05);
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 5px;
+            transition: 0.3s;
+        }
+        .custom-input-group:focus-within {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+        .custom-input-group .form-control {
+            background: transparent;
+            border: none;
+            color: white;
+            box-shadow: none;
+        }
+        .custom-input-group .form-control::placeholder { color: #64748b; }
+        
+        .btn-newsletter {
+            border-radius: 50px !important;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            transition: 0.3s;
+        }
+        .btn-newsletter:hover { transform: scale(1.05); color: white; }
+        
+        /* Animasi Loading Tombol Subscribe */
+        .btn-newsletter.loading {
+            pointer-events: none;
+            width: 100px; /* Melebar saat loading */
+        }
+
+        /* Tombol Back to Top */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            background: var(--primary-color);
+            border: none;
+        }
+        #backToTop.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        #backToTop:hover {
+            background: var(--secondary-color);
+            transform: translateY(-5px);
+        }
     </style>
 </head>
 <body>
@@ -683,7 +901,7 @@
                     <li class="nav-item"><a class="nav-link" href="#tool"><i class="fas fa-exchange-alt me-1"></i> Encode / Decode</a></li>
                     <li class="nav-item"><a class="nav-link" href="#alur"><i class="fas fa-project-diagram me-1"></i> Alur Sistem</a></li>
                     <li class="nav-item"><a class="nav-link" href="#glosarium"><i class="fas fa-book me-1"></i> Glosarium</a></li>
-                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/evaluation"><i class="fas fa-chart-line me-1"></i> Laporan Evaluasi</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning fw-bold" href="#evaluasi"><i class="fas fa-chart-line me-1"></i> Metrik Evaluasi</a></li>
                     <li class="nav-item"><a class="nav-link" href="#tim"><i class="fas fa-users me-1"></i> Tim</a></li>
                 </ul>
             </div>
@@ -1042,10 +1260,23 @@
                 </div>
 
             </div>
+
+            <!-- BUTTON HALAMAN LAPORAN HASIL EVALUASI -->
+            <div class="text-center mt-5">
+                <a href="/evaluation" 
+                   id="btn-eval" 
+                   class="btn btn-glass-eval magnetic-btn" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="top" 
+                   title="Klik untuk melihat Tabel & Grafik Pengujian!">
+                    <span class="btn-text"><i class="fas fa-chart-pie me-2"></i> Lihat Laporan Detail</span>
+                </a>
+            </div>
+
         </div>
     </section>
 
-        <!-- Tim Pengembang (Interactive Light Profile) -->
+    <!-- Tim Pengembang (Interactive Light Profile) -->
     <section class="py-5 bg-white" id="tim">
         <div class="container py-4">
             <h2 class="section-title mb-5">Tim Pengembang</h2>
@@ -1149,11 +1380,82 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-4">
+    <footer class="custom-footer pt-5 pb-4">
         <div class="container">
-            <p class="mb-0">&copy; 2024 Secure Vault Project. Dibuat untuk Tugas Keamanan Jaringan.</p>
+            <div class="row g-4 mb-4">
+                <!-- Kolom 1: Brand & Deskripsi -->
+                <div class="col-lg-4 col-md-6">
+                    <a class="footer-brand" href="#">
+                        <i class="fas fa-shield-alt me-2"></i>SecureVault
+                    </a>
+                    <p class="text-light mt-3 pe-lg-5" style="font-size: 0.9rem; line-height: 1.6;">
+                        Solusi keamanan data berlapis (Double Security) yang menggabungkan kekuatan enkripsi militer AES-256 dengan teknik penyembunyian Steganografi LSB.
+                    </p>
+                    <!-- Sosial Media -->
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+
+                <!-- Kolom 2: Tautan Cepat -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="footer-title">Fitur</h6>
+                    <ul class="footer-links">
+                        <li><a href="#tool">Enkripsi AES</a></li>
+                        <li><a href="#tool">Steganografi LSB</a></li>
+                        <li><a href="#evaluasi">Metrik Kualitas</a></li>
+                        <li><a href="/evaluation">Laporan Uji</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kolom 3: Sumber Daya -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="footer-title">Sumber Daya</h6>
+                    <ul class="footer-links">
+                        <li><a href="#alur">Alur Sistem</a></li>
+                        <li><a href="#glosarium">Glosarium</a></li>
+                        <li><a href="#tim">Tim Pengembang</a></li>
+                        <li><a href="#">Dokumentasi</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kolom 4: Newsletter -->
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="footer-title">Berlangganan Info</h6>
+                    <p class="text-light small mb-3">Dapatkan update terbaru seputar keamanan siber dan pembaruan sistem.</p>
+                    
+                    <form id="newsletterForm" class="mt-3">
+                        <div class="input-group custom-input-group">
+                            <input type="email" class="form-control" placeholder="Masukkan email Anda..." required>
+                            <button class="btn btn-newsletter" type="submit" id="btnSubscribe">
+                                <i class="fas fa-paper-plane" id="iconSend"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <hr class="border-secondary opacity-25 my-4">
+
+            <!-- Baris Bawah (Copyright) -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <p class="mb-0 text-light" style="font-size: 0.85rem;">
+                    &copy; 2024 <span class="text-primary fw-bold">SecureVault Project</span>. Dibuat untuk Tugas Keamanan Jaringan.
+                </p>
+                <p class="mb-0 text-light mt-2 mt-md-0" style="font-size: 0.85rem;">
+                    Made with <i class="fas fa-heart text-danger mx-1"></i> by Tim Pengembang
+                </p>
+            </div>
         </div>
     </footer>
+
+    <!-- Tombol Back to Top (Melayang) -->
+    <button id="backToTop" class="btn btn-primary rounded-circle shadow" title="Kembali ke atas">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
@@ -1335,6 +1637,131 @@
             document.getElementById('team-detail').classList.add('d-none');
             document.getElementById('team-grid').classList.remove('d-none');
         }
+
+
+        // BUTTON LAPORAN HASIL EVALUASI (Efek Magnetik + Ripple + Loading + Redirect)
+        // 1. Inisialisasi Bootstrap Tooltip
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // 2. Efek Magnetik (Tombol mengikuti Mouse)
+        const magneticBtn = document.querySelector('.magnetic-btn');
+        
+        if(magneticBtn) {
+            magneticBtn.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                // Hitung jarak kursor dari tengah tombol
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                // Geser tombol (nilai 0.3 menentukan seberapa kuat tarikannya)
+                this.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px) scale(1.05)`;
+            });
+
+            magneticBtn.addEventListener('mouseleave', function() {
+                // Kembalikan ke posisi semula dengan transisi halus
+                this.style.transition = 'transform 0.3s ease';
+                this.style.transform = `translate(0px, 0px) scale(1)`;
+                
+                // Hapus transition setelah selesai agar tidak mengganggu animasi magnetik berikutnya
+                setTimeout(() => {
+                    this.style.transition = 'box-shadow 0.3s, background 0.3s';
+                }, 300);
+            });
+        }
+
+        // 3. Efek Ripple (Gelombang) & Loading saat diklik
+        const evalBtn = document.getElementById('btn-eval');
+        
+        if(evalBtn) {
+            evalBtn.addEventListener('click', function(e) {
+                // Jika sedang loading, jangan lakukan apa-apa
+                if (this.classList.contains('loading')) return;
+
+                // --- A. Buat Efek Ripple ---
+                const rect = this.getBoundingClientRect();
+                const circle = document.createElement('span');
+                const diameter = Math.max(rect.width, rect.height);
+                
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${e.clientX - rect.left - diameter / 2}px`;
+                circle.style.top = `${e.clientY - rect.top - diameter / 2}px`;
+                circle.classList.add('ripple');
+                
+                const ripple = this.querySelector('.ripple');
+                if (ripple) { ripple.remove(); } // Hapus ripple lama jika ada
+                this.appendChild(circle);
+
+                // --- B. Tampilkan Loading State ---
+                this.classList.add('loading');
+                this.style.transform = `translate(0px, 0px) scale(1)`; // Reset posisi magnetik
+
+                // --- C. Redirect ke Halaman Evaluation setelah 1 detik ---
+                // (Memberikan waktu agar animasi loading terlihat)
+                setTimeout(() => {
+                    window.location.href = this.getAttribute('href');
+                }, 1000); // 1000 milidetik = 1 detik
+            });
+        }
+
+        // FOOTER INTERAKTIF
+        // 1. Animasi Form Newsletter (Simulasi)
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Mencegah halaman reload
+                const btn = document.getElementById('btnSubscribe');
+                const icon = document.getElementById('iconSend');
+                const input = this.querySelector('input');
+
+                // Simpan teks asli (ikon panah)
+                const originalHTML = btn.innerHTML;
+
+                // Ubah ke state loading
+                btn.classList.add('loading');
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Loading...';
+                input.disabled = true;
+
+                // Simulasi proses (tunggu 1.5 detik)
+                setTimeout(() => {
+                    // Ubah ke state sukses
+                    btn.innerHTML = '<i class="fas fa-check"></i> Berhasil!';
+                    btn.style.background = '#16a34a'; // Warna hijau sukses
+                    
+                    // Kembalikan ke semula setelah 3 detik
+                    setTimeout(() => {
+                        btn.classList.remove('loading');
+                        btn.innerHTML = originalHTML;
+                        btn.style.background = ''; // Kembalikan gradasi
+                        input.disabled = false;
+                        input.value = ''; // Kosongkan input
+                    }, 3000);
+
+                }, 1500);
+            });
+        }
+
+        // 2. Fitur Tombol Back to Top
+        const backToTopBtn = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', function() {
+            // Jika scroll lebih dari 300px, munculkan tombol
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function() {
+            // Scroll ke atas dengan efek halus
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
         </script>
 </body>
 </html>
