@@ -401,8 +401,31 @@
             transform: scale(1.005);
         }
         .file-upload-wrapper.has-file .file-upload-btn {
-            border-color: #22c55e;
-            background: #f0fdf4;
+            border-color: #3b82f6;
+            background: #f8fafc;
+            padding: 20px 15px;
+        }
+        .file-upload-wrapper.has-file.is-invalid .file-upload-btn {
+            border-color: #ef4444;
+            background: #fff5f5;
+        }
+        .preview-img-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .preview-img-thumbnail {
+            max-height: 200px;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            transition: transform 0.25s ease;
+        }
+        .file-upload-wrapper:hover .preview-img-thumbnail {
+            transform: scale(1.02);
         }
         .upload-icon-circle {
             width: 52px;
@@ -467,6 +490,32 @@
             cursor: not-allowed;
             opacity: 0.85;
             transform: none;
+        }
+
+        /* Secondary Reset Button */
+        .btn-reset-action {
+            background: #f1f5f9;
+            color: #475569;
+            border: none !important;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: none !important;
+            outline: none !important;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-reset-action:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: translateY(-2px);
+        }
+        .btn-reset-action:active {
+            transform: translateY(0);
         }
 
         /* Loading Overlay */
@@ -1356,15 +1405,29 @@
                                 </label>
                                 <div class="file-upload-wrapper" id="dropZone">
                                     <div class="file-upload-btn" id="dropZoneContent">
-                                        <div class="upload-icon-circle mb-2" id="uploadIconContainer">
-                                            <i class="fas fa-cloud-upload-alt" id="uploadIcon"></i>
+                                        <!-- Placeholder saat belum ada citra -->
+                                        <div id="uploadPlaceholder">
+                                            <div class="upload-icon-circle mb-2" id="uploadIconContainer">
+                                                <i class="fas fa-cloud-upload-alt" id="uploadIcon"></i>
+                                            </div>
+                                            <p class="mb-1 fw-semibold fs-6" id="fileName">Pilih atau letakkan gambar di sini</p>
+                                            <small class="text-muted d-block" id="uploadSubtext">Format PNG, maks. 5MB</small>
                                         </div>
-                                        <p class="mb-1 fw-semibold fs-6" id="fileName">Pilih atau letakkan gambar di sini</p>
-                                        <small class="text-muted d-block" id="uploadSubtext">Format PNG, maks. 5MB</small>
-                                        <div id="fileStatusBadge" class="d-none mt-2">
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-medium">
-                                                <i class="fas fa-check-circle me-1"></i> <span id="fileDetailsText"></span>
-                                            </span>
+
+                                        <!-- Preview saat citra telah dipilih -->
+                                        <div id="imagePreviewContainer" class="d-none text-center">
+                                            <div class="preview-img-container mb-2">
+                                                <img id="imagePreview" src="" alt="Preview Citra" class="preview-img-thumbnail">
+                                            </div>
+                                            <div class="d-flex flex-column align-items-center">
+                                                <p class="mb-1 fw-semibold text-dark text-break" id="previewFileName" style="font-size: 0.95rem;"></p>
+                                                <div class="d-flex align-items-center gap-2 text-muted small">
+                                                    <span id="previewDimensions"><i class="fas fa-expand me-1"></i><span id="resText">-</span></span>
+                                                    <span>•</span>
+                                                    <span id="previewSize"><i class="fas fa-file-image me-1"></i><span id="sizeText">-</span></span>
+                                                </div>
+                                                <small class="text-primary mt-2 fw-medium"><i class="fas fa-arrows-rotate me-1"></i>Klik atau seret citra untuk mengganti</small>
+                                            </div>
                                         </div>
                                     </div>
                                     <input type="file" name="image" id="imageInput" accept="image/png, image/jpeg" required onchange="handleFileChange(this)">
@@ -1379,7 +1442,7 @@
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-key text-primary"></i></span>
-                                    <input type="password" class="form-control border-start-0 border-end-0 ps-1" name="password" id="passwordInput" placeholder="Masukkan password..." required autocomplete="current-password" oninput="validateForm()">
+                                    <input type="password" class="form-control border-start-0 border-end-0 ps-1" name="password" id="passwordInput" placeholder="Masukkan password..." required autocomplete="current-password" oninput="onPasswordInput()">
                                     <button class="btn btn-outline-secondary bg-white border-start-0 px-3" type="button" id="togglePassword" title="Lihat/Sembunyikan Password" style="border-color: #cbd5e1;">
                                         <i class="fas fa-eye text-muted" id="eyeIcon"></i>
                                     </button>
@@ -1392,16 +1455,25 @@
                                     <span class="step-badge" id="step3Badge">3</span>
                                     <span id="secretTextLabelTitle">Pesan Rahasia</span>
                                 </label>
-                                <textarea class="form-control" name="secret_text" id="secretTextInput" rows="4" placeholder="Ketik pesan rahasia di sini..." required oninput="validateForm(); updateCharCount(this);"></textarea>
+                                <textarea class="form-control" name="secret_text" id="secretTextInput" rows="4" placeholder="Ketik pesan rahasia di sini..." required oninput="onSecretTextInput(this)"></textarea>
                                 <div class="d-flex justify-content-end align-items-center mt-1">
                                     <small class="text-muted fw-semibold" id="charCounter">0 karakter</small>
                                 </div>
                             </div>
 
-                            <!-- 3. Tombol Aksi Utama (Call-to-Action) -->
-                            <div class="mt-4 pt-2">
-                                <button type="submit" id="submitBtn" class="btn btn-submit-action w-100 py-3" disabled>
+                            <!-- Notifikasi Error (Tanpa background & tanpa garis tepi, hanya teks merah & ikon) -->
+                            <div id="processErrorMessage" class="{% if not error_message %}d-none{% else %}d-flex{% endif %} align-items-center mb-3 text-danger" style="font-size: 0.92rem; font-weight: 500; color: #dc2626 !important; background: transparent !important; border: none !important; box-shadow: none !important; line-height: 1.5;">
+                                <i class="fas fa-circle-info me-2 flex-shrink-0" style="color: #dc2626 !important; font-size: 1.15rem;"></i>
+                                <span id="processErrorText">{{ error_message if error_message else '' }}</span>
+                            </div>
+
+                            <!-- 3. Tombol Aksi Utama & Reset -->
+                            <div class="mt-3 d-flex gap-2 align-items-center">
+                                <button type="submit" id="submitBtn" class="btn btn-submit-action flex-grow-1 py-3" disabled>
                                     <span id="btnText">Proses</span>
+                                </button>
+                                <button type="button" id="resetBtn" class="btn btn-reset-action py-3 px-4" onclick="resetFormState()" title="Reset semua form ke kondisi awal">
+                                    <i class="fas fa-rotate-left me-1"></i> Reset
                                 </button>
                             </div>
                         </form>
@@ -1840,8 +1912,264 @@
             // State Mode Steganografi ('encode' | 'decode')
             let currentMode = 'encode';
 
+            // Helper: Menampilkan & Membersihkan Notifikasi Error (Tanpa background & tanpa garis tepi)
+            function showProcessError(message) {
+                const errorBox = document.getElementById('processErrorMessage');
+                const errorText = document.getElementById('processErrorText');
+                if (errorBox && errorText) {
+                    errorText.textContent = message;
+                    errorBox.classList.remove('d-none');
+                    errorBox.classList.add('d-flex');
+                }
+            }
+
+            function clearProcessError() {
+                const errorBox = document.getElementById('processErrorMessage');
+                const errorText = document.getElementById('processErrorText');
+                if (errorBox && errorText) {
+                    errorText.textContent = '';
+                    errorBox.classList.add('d-none');
+                    errorBox.classList.remove('d-flex');
+                }
+            }
+
+            // Helper: Cek ekstensi / tipe MIME JPG
+            function isJpgFile(file) {
+                if (!file) return false;
+                const name = file.name.toLowerCase();
+                const type = (file.type || '').toLowerCase();
+                return name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.jfif') || type === 'image/jpeg';
+            }
+
+            // Simpan State Form ke sessionStorage
+            function saveFormState() {
+                try {
+                    sessionStorage.setItem('stego_has_session', 'true');
+                    sessionStorage.setItem('stego_mode', currentMode);
+
+                    const passwordInput = document.getElementById('passwordInput');
+                    if (passwordInput) {
+                        sessionStorage.setItem('stego_password', passwordInput.value);
+                    }
+
+                    const secretTextInput = document.getElementById('secretTextInput');
+                    if (secretTextInput) {
+                        sessionStorage.setItem('stego_secret_text', secretTextInput.value);
+                    }
+
+                    const previewFileName = document.getElementById('previewFileName');
+                    if (previewFileName) {
+                        sessionStorage.setItem('stego_file_name', previewFileName.textContent);
+                    }
+
+                    const resText = document.getElementById('resText');
+                    if (resText) {
+                        sessionStorage.setItem('stego_file_res', resText.textContent);
+                    }
+
+                    const sizeText = document.getElementById('sizeText');
+                    if (sizeText) {
+                        sessionStorage.setItem('stego_file_size', sizeText.textContent);
+                    }
+
+                    const imagePreview = document.getElementById('imagePreview');
+                    if (imagePreview && imagePreview.src && imagePreview.src.startsWith('data:')) {
+                        try {
+                            sessionStorage.setItem('stego_file_data', imagePreview.src);
+                        } catch (quotaErr) {
+                            console.warn('Ukuran citra melebihi kuota sessionStorage', quotaErr);
+                            try {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                const maxDim = 320;
+                                let w = imagePreview.naturalWidth || 320;
+                                let h = imagePreview.naturalHeight || 320;
+                                if (w > h) {
+                                    if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                                } else {
+                                    if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+                                }
+                                canvas.width = w;
+                                canvas.height = h;
+                                ctx.drawImage(imagePreview, 0, 0, w, h);
+                                const thumbData = canvas.toDataURL('image/jpeg', 0.7);
+                                sessionStorage.setItem('stego_file_data', thumbData);
+                            } catch (thumbErr) {
+                                console.warn('Thumbnail generation failed', thumbErr);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Gagal menyimpan state session', e);
+                }
+            }
+
+            // Konversi Data URL kembali ke File Object untuk input[type="file"]
+            function dataURLtoFile(dataurl, filename) {
+                try {
+                    const arr = dataurl.split(',');
+                    const mimeMatch = arr[0].match(/:(.*?);/);
+                    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+                    const bstr = atob(arr[1]);
+                    let n = bstr.length;
+                    const u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new File([u8arr], filename || 'uploaded_image.png', { type: mime });
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            // Pulihkan State Form dari sessionStorage (misal setelah klik tombol Kembali)
+            function restoreFormState() {
+                try {
+                    const hasSession = sessionStorage.getItem('stego_has_session');
+                    if (hasSession !== 'true') return;
+
+                    const savedMode = sessionStorage.getItem('stego_mode');
+                    if (savedMode && (savedMode === 'encode' || savedMode === 'decode')) {
+                        switchMode(savedMode, false);
+                    }
+
+                    const savedPassword = sessionStorage.getItem('stego_password');
+                    const passwordInput = document.getElementById('passwordInput');
+                    if (passwordInput && savedPassword !== null) {
+                        passwordInput.value = savedPassword;
+                    }
+
+                    const savedSecretText = sessionStorage.getItem('stego_secret_text');
+                    const secretTextInput = document.getElementById('secretTextInput');
+                    if (secretTextInput && savedSecretText !== null) {
+                        secretTextInput.value = savedSecretText;
+                        updateCharCount(secretTextInput);
+                    }
+
+                    const savedFileData = sessionStorage.getItem('stego_file_data');
+                    const savedFileName = sessionStorage.getItem('stego_file_name');
+                    const savedFileRes = sessionStorage.getItem('stego_file_res');
+                    const savedFileSize = sessionStorage.getItem('stego_file_size');
+
+                    const imageInput = document.getElementById('imageInput');
+                    const dropZone = document.getElementById('dropZone');
+                    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    const imagePreview = document.getElementById('imagePreview');
+                    const previewFileName = document.getElementById('previewFileName');
+                    const resText = document.getElementById('resText');
+                    const sizeText = document.getElementById('sizeText');
+
+                    if (savedFileData || savedFileName) {
+                        if (imagePreview && savedFileData) imagePreview.src = savedFileData;
+                        if (previewFileName && savedFileName) previewFileName.textContent = savedFileName;
+                        if (resText && savedFileRes) resText.textContent = savedFileRes;
+                        if (sizeText && savedFileSize) sizeText.textContent = savedFileSize;
+
+                        if (uploadPlaceholder) uploadPlaceholder.classList.add('d-none');
+                        if (previewContainer) previewContainer.classList.remove('d-none');
+                        if (dropZone) dropZone.classList.add('has-file');
+
+                        // Pulihkan objek File ke imageInput menggunakan DataTransfer
+                        if (savedFileData && imageInput && typeof DataTransfer !== 'undefined') {
+                            const restoredFile = dataURLtoFile(savedFileData, savedFileName || 'uploaded_image.png');
+                            if (restoredFile) {
+                                const dt = new DataTransfer();
+                                dt.items.add(restoredFile);
+                                imageInput.files = dt.files;
+                            }
+                        }
+                    }
+
+                    validateForm();
+
+                    // Scroll halus ke section tool jika diarahkan ke #tool, tab=tool, atau kembali dari proses
+                    const isFromProcess = window.location.search.includes('tab=tool') || window.location.hash.includes('tool') || hasSession === 'true';
+                    if (isFromProcess) {
+                        const toolElement = document.getElementById('tool');
+                        if (toolElement) {
+                            setTimeout(() => {
+                                const navbar = document.querySelector('.navbar');
+                                const navbarHeight = navbar ? navbar.offsetHeight : 68;
+                                const targetPosition = toolElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                                window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
+                            }, 150);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Gagal memulihkan state session', e);
+                }
+            }
+
+            // Fungsi Reset Form: membersihkan seluruh data input, preview citra, dan session storage
+            function resetFormState() {
+                try {
+                    sessionStorage.removeItem('stego_has_session');
+                    sessionStorage.removeItem('stego_mode');
+                    sessionStorage.removeItem('stego_password');
+                    sessionStorage.removeItem('stego_secret_text');
+                    sessionStorage.removeItem('stego_file_name');
+                    sessionStorage.removeItem('stego_file_res');
+                    sessionStorage.removeItem('stego_file_size');
+                    sessionStorage.removeItem('stego_file_data');
+                } catch (e) {}
+
+                // Reset file input & preview
+                const imageInput = document.getElementById('imageInput');
+                const dropZone = document.getElementById('dropZone');
+                const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+                const previewContainer = document.getElementById('imagePreviewContainer');
+                const imagePreview = document.getElementById('imagePreview');
+                const previewFileName = document.getElementById('previewFileName');
+                const resText = document.getElementById('resText');
+                const sizeText = document.getElementById('sizeText');
+
+                if (imageInput) imageInput.value = '';
+                if (imagePreview) imagePreview.src = '';
+                if (previewFileName) previewFileName.textContent = '';
+                if (resText) resText.textContent = '-';
+                if (sizeText) sizeText.textContent = '-';
+
+                if (uploadPlaceholder) uploadPlaceholder.classList.remove('d-none');
+                if (previewContainer) previewContainer.classList.add('d-none');
+                if (dropZone) dropZone.classList.remove('has-file', 'is-invalid');
+
+                // Reset password input
+                const passwordInput = document.getElementById('passwordInput');
+                if (passwordInput) passwordInput.value = '';
+
+                // Reset secret text input & counter
+                const secretTextInput = document.getElementById('secretTextInput');
+                if (secretTextInput) {
+                    secretTextInput.value = '';
+                    updateCharCount(secretTextInput);
+                }
+
+                // Bersihkan notifikasi error
+                clearProcessError();
+
+                // Validasi ulang (akan menonaktifkan submit button)
+                validateForm();
+            }
+
+            // Input listener untuk password & secret text agar error otomatis ter-reset saat pengguna mengetik
+            function onPasswordInput() {
+                const imageInput = document.getElementById('imageInput');
+                const hasJpgInDecode = currentMode === 'decode' && imageInput && imageInput.files && imageInput.files.length > 0 && isJpgFile(imageInput.files[0]);
+                if (!hasJpgInDecode) {
+                    clearProcessError();
+                }
+                validateForm();
+            }
+
+            function onSecretTextInput(textarea) {
+                updateCharCount(textarea);
+                clearProcessError();
+                validateForm();
+            }
+
             // 1. Fungsi Switch Mode (Encode / Decode)
-            function switchMode(mode) {
+            function switchMode(mode, isUserAction = true) {
                 if (currentMode === mode) return;
                 currentMode = mode;
 
@@ -1856,6 +2184,8 @@
                 const btnText = document.getElementById('btnText');
                 const uploadIcon = document.getElementById('uploadIcon');
                 const stepUploadGroup = document.getElementById('stepUploadGroup');
+                const imageInput = document.getElementById('imageInput');
+                const dropZone = document.getElementById('dropZone');
 
                 formAction.value = mode;
 
@@ -1869,7 +2199,7 @@
                     // Update Labels
                     uploadLabelTitle.textContent = 'Gambar Cover';
                     uploadSubtext.textContent = 'Format PNG, maks. 5MB';
-                    uploadIcon.className = 'fas fa-cloud-upload-alt';
+                    if (uploadIcon) uploadIcon.className = 'fas fa-cloud-upload-alt';
 
                     // Tampilkan Field Pesan Rahasia dengan animasi halus
                     secretTextGroup.style.display = 'block';
@@ -1890,8 +2220,8 @@
 
                     // Update Labels
                     uploadLabelTitle.textContent = 'Gambar Stego';
-                    uploadSubtext.textContent = 'Format PNG, maks. 5MB';
-                    uploadIcon.className = 'fas fa-file-import';
+                    uploadSubtext.textContent = 'Format PNG (Wajib), maks. 5MB';
+                    if (uploadIcon) uploadIcon.className = 'fas fa-file-import';
 
                     // Sembunyikan Field Pesan Rahasia pada Mode Decode
                     secretTextGroup.style.display = 'none';
@@ -1902,6 +2232,46 @@
                     btnText.textContent = 'Proses';
                 }
 
+                // Jika pengguna berpindah tab secara manual, reset seluruh isian form agar bersih
+                if (isUserAction) {
+                    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    const imagePreview = document.getElementById('imagePreview');
+                    const previewFileName = document.getElementById('previewFileName');
+                    const resText = document.getElementById('resText');
+                    const sizeText = document.getElementById('sizeText');
+                    const passwordInput = document.getElementById('passwordInput');
+
+                    if (imageInput) imageInput.value = '';
+                    if (imagePreview) imagePreview.src = '';
+                    if (previewFileName) previewFileName.textContent = '';
+                    if (resText) resText.textContent = '-';
+                    if (sizeText) sizeText.textContent = '-';
+
+                    if (uploadPlaceholder) uploadPlaceholder.classList.remove('d-none');
+                    if (previewContainer) previewContainer.classList.add('d-none');
+                    if (dropZone) dropZone.classList.remove('has-file', 'is-invalid');
+
+                    if (passwordInput) passwordInput.value = '';
+                    if (secretTextInput) {
+                        secretTextInput.value = '';
+                        updateCharCount(secretTextInput);
+                    }
+
+                    clearProcessError();
+
+                    try {
+                        sessionStorage.removeItem('stego_has_session');
+                        sessionStorage.removeItem('stego_password');
+                        sessionStorage.removeItem('stego_secret_text');
+                        sessionStorage.removeItem('stego_file_name');
+                        sessionStorage.removeItem('stego_file_res');
+                        sessionStorage.removeItem('stego_file_size');
+                        sessionStorage.removeItem('stego_file_data');
+                        sessionStorage.setItem('stego_mode', mode);
+                    } catch (e) {}
+                }
+
                 // Animasi halus pada grup upload
                 stepUploadGroup.classList.remove('tab-fade-in');
                 void stepUploadGroup.offsetWidth;
@@ -1910,12 +2280,15 @@
                 validateForm();
             }
 
-            // 2. Fungsi Validasi & Update Informasi File saat Upload
+            // 2. Fungsi Validasi & Update Informasi File saat Upload (Termasuk Preview Image)
             function handleFileChange(input) {
-                const fileNameDisplay = document.getElementById('fileName');
-                const fileStatusBadge = document.getElementById('fileStatusBadge');
-                const fileDetailsText = document.getElementById('fileDetailsText');
                 const dropZone = document.getElementById('dropZone');
+                const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+                const previewContainer = document.getElementById('imagePreviewContainer');
+                const imagePreview = document.getElementById('imagePreview');
+                const previewFileName = document.getElementById('previewFileName');
+                const resText = document.getElementById('resText');
+                const sizeText = document.getElementById('sizeText');
 
                 if (input.files && input.files.length > 0) {
                     const file = input.files[0];
@@ -1923,11 +2296,12 @@
                     // Validasi batas ukuran file (maks 5MB)
                     const maxSize = 5 * 1024 * 1024; // 5MB
                     if (file.size > maxSize) {
-                        alert('Ukuran file melebihi 5MB! Silakan pilih citra lain yang berukuran di bawah 5MB.');
+                        showProcessError('Error. Ukuran file melebihi batas 5MB! Silakan pilih citra lain yang berukuran di bawah 5MB.');
                         input.value = '';
-                        fileNameDisplay.textContent = 'Pilih atau letakkan gambar di sini';
-                        fileStatusBadge.classList.add('d-none');
-                        dropZone.classList.remove('has-file');
+                        if (uploadPlaceholder) uploadPlaceholder.classList.remove('d-none');
+                        if (previewContainer) previewContainer.classList.add('d-none');
+                        if (imagePreview) imagePreview.src = '';
+                        if (dropZone) dropZone.classList.remove('has-file', 'is-invalid');
                         validateForm();
                         return;
                     }
@@ -1937,14 +2311,46 @@
                         ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
                         : fileSizeKB + ' KB';
 
-                    fileNameDisplay.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${file.name}</span>`;
-                    fileDetailsText.textContent = `${file.name} (${fileSizeFormatted})`;
-                    fileStatusBadge.classList.remove('d-none');
-                    dropZone.classList.add('has-file');
+                    if (previewFileName) previewFileName.textContent = file.name;
+                    if (sizeText) sizeText.textContent = fileSizeFormatted;
+                    if (resText) resText.textContent = 'Memuat dimensi...';
+
+                    // Baca dan tampilkan Image Preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (imagePreview) {
+                            imagePreview.src = e.target.result;
+                        }
+                        // Dapatkan dimensi piksel asli dari citra
+                        const tempImg = new Image();
+                        tempImg.onload = function() {
+                            if (resText) {
+                                resText.textContent = `${this.naturalWidth} × ${this.naturalHeight} px`;
+                            }
+                        };
+                        tempImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+
+                    // Switch tampilan dari placeholder ke preview container
+                    if (uploadPlaceholder) uploadPlaceholder.classList.add('d-none');
+                    if (previewContainer) previewContainer.classList.remove('d-none');
+                    if (dropZone) dropZone.classList.add('has-file');
+
+                    // Validasi khusus format JPG pada Mode Decode
+                    if (currentMode === 'decode' && isJpgFile(file)) {
+                        if (dropZone) dropZone.classList.add('is-invalid');
+                        showProcessError('Error. Gambar yang diunggah berformat JPG/JPEG. Steganografi LSB membutuhkan citra berformat PNG asli karena kompresi JPG merusak bit pesan rahasia.');
+                    } else {
+                        if (dropZone) dropZone.classList.remove('is-invalid');
+                        clearProcessError();
+                    }
                 } else {
-                    fileNameDisplay.textContent = 'Pilih atau letakkan gambar di sini';
-                    fileStatusBadge.classList.add('d-none');
-                    dropZone.classList.remove('has-file');
+                    if (uploadPlaceholder) uploadPlaceholder.classList.remove('d-none');
+                    if (previewContainer) previewContainer.classList.add('d-none');
+                    if (imagePreview) imagePreview.src = '';
+                    if (dropZone) dropZone.classList.remove('has-file', 'is-invalid');
+                    clearProcessError();
                 }
 
                 validateForm();
@@ -1971,44 +2377,109 @@
                 const hasPassword = passwordInput.value.trim().length > 0;
                 const hasSecretText = currentMode === 'decode' || (secretTextInput && secretTextInput.value.trim().length > 0);
 
-                if (hasFile && hasPassword && hasSecretText) {
+                // Jika mode decode dan file adalah JPG, tombol jangan diaktifkan
+                let isInvalidFormat = false;
+                if (currentMode === 'decode' && hasFile && isJpgFile(imageInput.files[0])) {
+                    isInvalidFormat = true;
+                }
+
+                if (hasFile && hasPassword && hasSecretText && !isInvalidFormat) {
                     submitBtn.removeAttribute('disabled');
                 } else {
                     submitBtn.setAttribute('disabled', 'disabled');
                 }
             }
 
-            // Form Submit Handler
-            function handleFormSubmit(event) {
+            // Form Submit Handler dengan Async Fetch & Error Handling Real-time
+            async function handleFormSubmit(event) {
+                if (event) event.preventDefault();
+
                 const imageInput = document.getElementById('imageInput');
                 const passwordInput = document.getElementById('passwordInput');
                 const secretTextInput = document.getElementById('secretTextInput');
+                const dropZone = document.getElementById('dropZone');
 
                 if (!imageInput.files || imageInput.files.length === 0) {
-                    alert('Harap pilih atau unggah citra gambar terlebih dahulu!');
-                    if (event) event.preventDefault();
-                    return false;
-                }
-                if (!passwordInput.value.trim()) {
-                    alert('Harap masukkan password/kunci rahasia!');
-                    if (event) event.preventDefault();
-                    return false;
-                }
-                if (currentMode === 'encode' && (!secretTextInput || !secretTextInput.value.trim())) {
-                    alert('Harap masukkan teks pesan rahasia yang ingin disisipkan!');
-                    if (event) event.preventDefault();
+                    showProcessError('Error. Harap pilih atau unggah citra gambar terlebih dahulu.');
                     return false;
                 }
 
+                const file = imageInput.files[0];
+                if (currentMode === 'decode' && isJpgFile(file)) {
+                    if (dropZone) dropZone.classList.add('is-invalid');
+                    showProcessError('Error. Gambar yang diunggah berformat JPG/JPEG. Steganografi LSB membutuhkan citra berformat PNG asli karena kompresi JPG merusak bit pesan rahasia.');
+                    return false;
+                }
+
+                if (!passwordInput.value.trim()) {
+                    showProcessError('Error. Harap masukkan password/kunci rahasia.');
+                    return false;
+                }
+
+                if (currentMode === 'encode' && (!secretTextInput || !secretTextInput.value.trim())) {
+                    showProcessError('Error. Harap masukkan teks pesan rahasia yang ingin disisipkan.');
+                    return false;
+                }
+
+                clearProcessError();
                 showLoading();
-                return true;
+                saveFormState();
+
+                const form = document.getElementById('mainForm');
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch('/process', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        saveFormState();
+                        try {
+                            history.pushState({ page: 'result' }, 'Hasil Proses', '/process');
+                        } catch (histErr) {}
+                        const html = await response.text();
+                        document.open();
+                        document.write(html);
+                        document.close();
+                        return false;
+                    } else {
+                        hideLoading();
+                        let errorMessage = 'Error. Terjadi kesalahan saat memproses data.';
+                        try {
+                            const data = await response.json();
+                            if (data && data.message) {
+                                errorMessage = data.message;
+                            }
+                        } catch (jsonErr) {
+                            // Non-JSON response
+                        }
+                        showProcessError(errorMessage);
+                        return false;
+                    }
+                } catch (err) {
+                    hideLoading();
+                    showProcessError('Error. Gagal terhubung ke server backend. Pastikan aplikasi berjalan.');
+                    return false;
+                }
             }
 
-            // Fungsi untuk menampilkan loading overlay saat submit
+            // Fungsi untuk menampilkan & menyembunyikan loading overlay
             function showLoading() {
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.style.display = 'flex';
+                }
+            }
+
+            function hideLoading() {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
                 }
             }
 
@@ -2043,6 +2514,7 @@
                     });
                 }
                 
+                restoreFormState();
                 validateForm();
             });
 
