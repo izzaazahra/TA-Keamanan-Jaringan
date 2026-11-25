@@ -26,21 +26,18 @@ if not os.path.exists(COVER_IMAGE):
 # Salin citra cover ke static/eval_images agar dapat diakses web
 shutil.copy(COVER_IMAGE, os.path.join(EVAL_DIR, 'cover.png'))
 
-# Set seed agar hasil payload konsisten dan deterministik
-random.seed(42)
-
-def random_text(length):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+from generate_payloads import get_all_payloads
 
 # 10 Ukuran Payload berbeda (bytes)
 payload_sizes = [10, 50, 100, 500, 1000, 2500, 5000, 10000, 25000, 50000]
+payload_dict = get_all_payloads()
 results = []
 
-print("Memulai pengujian 10 payload...")
+print("Memulai pengujian 10 payload dengan teks bermakna kehidupan sehari-hari...")
 orig_img_arr = np.array(Image.open(COVER_IMAGE).convert('RGB'))
 
 for i, size in enumerate(payload_sizes):
-    payload = random_text(size)
+    payload = payload_dict[size]
     stego_filename = f'stego_payload_{size}.png'
     stego_path = os.path.join(EVAL_DIR, stego_filename)
     
